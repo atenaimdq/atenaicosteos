@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ficha Técnica - Costeo Profesional</title>
+  <title>atenai-costeos</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -31,18 +29,35 @@
       padding: 2.5rem;
       box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8);
     }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.8rem;
+    }
     h1 {
       color: #4caf50;
-      margin-top: 0;
+      margin: 0;
       font-weight: 300;
       letter-spacing: 2px;
       font-size: 2.2rem;
+    }
+    .credits {
+      color: #666;
+      font-size: 0.85rem;
+      text-align: right;
+    }
+    .credits span {
+      display: block;
     }
     .tabs {
       display: flex;
       gap: 0.8rem;
       flex-wrap: wrap;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
       border-bottom: 1px solid #333;
       padding-bottom: 0.8rem;
     }
@@ -50,12 +65,12 @@
       background: #2a2a2a;
       border: none;
       border-radius: 40px;
-      padding: 14px 30px;
+      padding: 12px 24px;
       font-weight: 600;
       color: #aaa;
       cursor: pointer;
       transition: 0.25s;
-      font-size: 1.1rem;
+      font-size: 1rem;
     }
     .tab-btn:hover {
       background: #333;
@@ -84,20 +99,20 @@
     }
     .seccion {
       background: #1e1e1e;
-      padding: 2rem;
+      padding: 1.8rem;
       border-radius: 24px;
-      margin-bottom: 2.5rem;
+      margin-bottom: 2rem;
       border: 1px solid #2a2a2a;
     }
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
+      gap: 1.2rem;
     }
     .grid-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 1.5rem;
+      gap: 1.2rem;
     }
     .grid-4 {
       display: grid;
@@ -106,20 +121,20 @@
     }
     label {
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       text-transform: uppercase;
       color: #aaa;
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     input,
     select,
     textarea {
       width: 100%;
-      padding: 12px 14px;
+      padding: 10px 12px;
       border: 1px solid #333;
-      border-radius: 14px;
-      font-size: 1.05rem;
+      border-radius: 12px;
+      font-size: 1rem;
       background: #2a2a2a;
       color: #f0f0f0;
       transition: 0.15s;
@@ -140,10 +155,10 @@
     }
     textarea {
       resize: vertical;
-      min-height: 60px;
+      min-height: 50px;
     }
     button {
-      padding: 14px 28px;
+      padding: 10px 22px;
       border: none;
       border-radius: 40px;
       font-weight: 600;
@@ -151,7 +166,7 @@
       background: #2e7d32;
       color: white;
       transition: 0.2s;
-      font-size: 1.05rem;
+      font-size: 1rem;
     }
     button:hover {
       background: #1b5e20;
@@ -169,8 +184,8 @@
       color: white;
       border: none;
       border-radius: 30px;
-      padding: 6px 18px;
-      font-size: 0.95rem;
+      padding: 4px 14px;
+      font-size: 0.9rem;
       cursor: pointer;
     }
     .btn-danger:hover {
@@ -181,8 +196,8 @@
       color: white;
       border: none;
       border-radius: 30px;
-      padding: 6px 18px;
-      font-size: 0.95rem;
+      padding: 4px 14px;
+      font-size: 0.9rem;
       cursor: pointer;
       margin-right: 0.5rem;
     }
@@ -191,94 +206,94 @@
     }
     .flex {
       display: flex;
-      gap: 1.2rem;
+      gap: 1rem;
       flex-wrap: wrap;
       align-items: center;
-      margin-top: 1.2rem;
+      margin-top: 1rem;
     }
     .factor-box {
       background: #111;
-      padding: 1rem 1.5rem;
+      padding: 0.8rem 1.2rem;
       border-radius: 14px;
       margin-top: 0.8rem;
       border: 1px solid #2a2a2a;
       display: flex;
       flex-wrap: wrap;
-      gap: 2rem;
+      gap: 1.5rem;
     }
     .factor-box .value {
       color: #4caf50;
       font-weight: bold;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
     }
     .text-muted {
       color: #999;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     .tabla-scroll {
       overflow-x: auto;
-      margin-top: 1rem;
+      margin-top: 0.8rem;
     }
     .tabla-scroll table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     .tabla-scroll th {
       background: #2a2a2a;
-      padding: 12px 10px;
+      padding: 10px 8px;
       text-align: center;
       font-weight: 600;
       color: #aaa;
       white-space: nowrap;
     }
     .tabla-scroll td {
-      padding: 8px 10px;
+      padding: 6px 8px;
       vertical-align: middle;
     }
     .tabla-scroll input,
     .tabla-scroll select {
-      padding: 6px 10px;
+      padding: 4px 8px;
       border-radius: 8px;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       background: #222;
     }
     .resumen {
       background: #1a1a1a;
-      padding: 1.5rem;
-      border-radius: 18px;
-      margin-top: 1.5rem;
+      padding: 1.2rem;
+      border-radius: 16px;
+      margin-top: 1.2rem;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.8rem;
       border: 1px solid #2a2a2a;
     }
     .resumen-item {
       background: #222;
-      padding: 0.8rem 1.2rem;
-      border-radius: 14px;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
       text-align: center;
       border-left: 4px solid #4caf50;
     }
     .resumen-item .label {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
       color: #999;
     }
     .resumen-item .value {
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: #4caf50;
     }
     .historial {
-      max-height: 600px;
+      max-height: 500px;
       overflow-y: auto;
     }
     .card {
       background: #222;
-      padding: 1.2rem;
-      border-radius: 14px;
-      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-bottom: 0.8rem;
       border-left: 6px solid #4caf50;
       position: relative;
     }
@@ -287,10 +302,10 @@
       color: white;
       border: none;
       border-radius: 30px;
-      padding: 6px 18px;
+      padding: 4px 14px;
       cursor: pointer;
       float: right;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     .card .borrar:hover {
       background: #880e0e;
@@ -300,11 +315,11 @@
       color: white;
       border: none;
       border-radius: 30px;
-      padding: 6px 18px;
+      padding: 4px 14px;
       cursor: pointer;
       float: right;
       margin-right: 0.5rem;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     .card .editar:hover {
       background: #1a2a3a;
@@ -312,20 +327,20 @@
     .badge {
       background: #2e7d32;
       color: white;
-      padding: 4px 14px;
+      padding: 2px 12px;
       border-radius: 40px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       display: inline-block;
       margin-left: 0.5rem;
     }
     .log {
       background: #111;
-      padding: 0.8rem 1.2rem;
-      border-radius: 14px;
-      margin-top: 1.2rem;
-      font-size: 0.95rem;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      font-size: 0.9rem;
       border: 1px solid #2a2a2a;
-      max-height: 140px;
+      max-height: 120px;
       overflow-y: auto;
       color: #ccc;
     }
@@ -378,19 +393,35 @@
         flex: 1 1 100%;
         text-align: center;
       }
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .credits {
+        text-align: left;
+        margin-top: 0.3rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
 
-    <h1>🧑‍🍳 Ficha Técnica de Costeo</h1>
+    <!-- ===== ENCABEZADO CON CRÉDITOS ===== -->
+    <div class="header">
+      <h1>🧑‍🍳 atenai-costeos</h1>
+      <div class="credits">
+        <span>Desarrollado por Daniel Santini y DpSk</span>
+        <span>Versión 1.0 · 30/06/2026</span>
+      </div>
+    </div>
 
-    <!-- PESTAÑAS -->
+    <!-- ===== PESTAÑAS ===== -->
     <div class="tabs">
       <button class="tab-btn activo" data-tab="tab1">📦 1. Productos</button>
-      <button class="tab-btn" data-tab="tab2">🔥 Rendimiento por cocción</button>
+      <button class="tab-btn" data-tab="tab2">🔥 Rendimiento cocción</button>
       <button class="tab-btn" data-tab="tab3">📝 2. Recetas</button>
+      <button class="tab-btn" data-tab="tab5">📊 Calculadora de compras</button>
       <button class="tab-btn" data-tab="tab4">📋 3. Historial</button>
     </div>
 
@@ -421,7 +452,8 @@
         </div>
         <div class="flex">
           <button id="guardarProducto">Guardar</button>
-          <button id="refrescarProductos" class="btn-sec">🔄 Refrescar</button>
+          <button id="limpiarProducto" class="btn-sec">🧹 Limpiar campos</button>
+          <button id="refrescarProductos" class="btn-sec">🔄 Refrescar lista</button>
         </div>
         <div id="logProductos" class="log"></div>
         <h4 style="margin-top:2rem;">📋 Productos guardados</h4>
@@ -454,11 +486,14 @@
           <span class="value" id="factorCoccion">—</span>
           <span class="text-muted">Rendimiento % (final/inicial ×100):</span>
           <span class="value" id="rendimientoPorcentajeCoccion">—</span>
-          <span class="text-muted">Factor total (desperdicio × cocción):</span>
+          <span class="text-muted">Factor total (desp × cocción):</span>
           <span class="value" id="factorTotalCoccion">—</span>
+          <span class="text-muted">Costo por kg cocido:</span>
+          <span class="value" id="costoKgCocido">—</span>
         </div>
         <div class="flex">
           <button id="guardarCoccion">Guardar</button>
+          <button id="limpiarCoccion" class="btn-sec">🧹 Limpiar campos</button>
           <button id="refrescarCoccion" class="btn-sec">🔄 Refrescar</button>
         </div>
         <div id="logCoccion" class="log"></div>
@@ -487,19 +522,25 @@
           <div><label>Responsable</label><input id="recetaResponsable" placeholder="Nombre" /></div>
         </div>
         <div style="margin-top:1rem;">
-          <label>Observaciones generales de la receta</label>
+          <label>Observaciones generales</label>
           <textarea id="recetaObservaciones" rows="2"></textarea>
         </div>
 
-        <!-- Cálculo de porciones / gramos por porción -->
+        <!-- Cálculo de porciones -->
         <div class="grid-2" style="margin-top:1.5rem;">
           <div>
-            <label>Tamaño de porción (g) <span style="color:#666;">(si se ingresa, calcula porciones)</span></label>
-            <input id="recetaPorcionGramos" type="number" step="1" placeholder="ej. 150" />
+            <label>Tamaño de porción (g)</label>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <input id="recetaPorcionGramos" type="number" step="any" placeholder="ej. 150" style="flex:1;" />
+              <button id="limpiarPorcionGramos" class="btn-sec" style="padding:6px 12px;font-size:0.8rem;">✕</button>
+            </div>
           </div>
           <div>
-            <label>Número de porciones <span style="color:#666;">(si se ingresa, calcula gramos por porción)</span></label>
-            <input id="recetaNumPorciones" type="number" step="1" placeholder="ej. 10" />
+            <label>Número de porciones</label>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <input id="recetaNumPorciones" type="number" step="any" placeholder="ej. 10" style="flex:1;" />
+              <button id="limpiarNumPorciones" class="btn-sec" style="padding:6px 12px;font-size:0.8rem;">✕</button>
+            </div>
           </div>
         </div>
 
@@ -526,7 +567,7 @@
         <div class="flex">
           <button id="agregarProductoReceta" class="btn-sec">➕ Agregar</button>
           <button id="guardarReceta">💾 Guardar</button>
-          <button id="limpiarReceta" class="btn-sec">🧹 Limpiar</button>
+          <button id="limpiarReceta" class="btn-sec">🧹 Limpiar todo</button>
         </div>
 
         <!-- Resumen -->
@@ -543,7 +584,50 @@
     </div>
 
     <!-- ========================================================= -->
-    <!-- PESTAÑA 4: HISTORIAL                                      -->
+    <!-- PESTAÑA 4: CALCULADORA DE COMPRAS                        -->
+    <!-- ========================================================= -->
+    <div id="tab5" class="tab-panel">
+      <div class="seccion">
+        <h3>📊 Calculadora de compras (bruto necesario)</h3>
+        <div class="grid-3">
+          <div>
+            <label>Producto</label>
+            <select id="calcProducto">
+              <option value="">Seleccionar</option>
+            </select>
+          </div>
+          <div>
+            <label>Cantidad final deseada (g) – cocida o limpia</label>
+            <input id="calcNeto" type="number" step="any" placeholder="ej. 500" />
+          </div>
+          <div>
+            <label>Factor total (automático)</label>
+            <input id="calcFactorTotal" readonly style="background:#1a1a1a;color:#4caf50;font-weight:bold;" />
+          </div>
+        </div>
+        <div class="factor-box" style="margin-top:1rem;">
+          <span class="text-muted">Bruto necesario (g):</span>
+          <span class="value" id="calcBrutoNecesario">—</span>
+          <span class="text-muted">Costo estimado ($):</span>
+          <span class="value" id="calcCostoEstimado">—</span>
+          <span class="text-muted">Factor de desperdicio:</span>
+          <span class="value" id="calcFactorDesp">—</span>
+          <span class="text-muted">Factor cocción:</span>
+          <span class="value" id="calcFactorCoccion">—</span>
+        </div>
+        <div class="flex">
+          <button id="calcularCompra" class="btn-primary">Calcular</button>
+          <button id="limpiarCalc" class="btn-sec">🧹 Limpiar</button>
+        </div>
+        <div id="logCalc" class="log"></div>
+        <p style="color:#666;font-size:0.85rem;margin-top:0.5rem;">
+          ⚠️ Esta calculadora no guarda registros, solo te ayuda a saber cuánto producto en bruto necesitas comprar para obtener una cantidad final deseada.
+        </p>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 5: HISTORIAL                                      -->
     <!-- ========================================================= -->
     <div id="tab4" class="tab-panel">
       <div class="seccion">
@@ -551,7 +635,6 @@
         <div id="historial" class="historial"></div>
         <div class="flex" style="margin-top:0.8rem;">
           <button id="refrescarHistorial" class="btn-sec">🔄 Refrescar</button>
-          <button id="exportarPDF" class="btn-sec">📄 Exportar PDF</button>
         </div>
       </div>
     </div>
@@ -573,6 +656,9 @@
 
   </div>
 
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT                                                   -->
+  <!-- ============================================================ -->
   <script>
     // ================================================================
     // CONFIGURACIÓN FIREBASE
@@ -631,9 +717,9 @@
             <div><label>Nombre</label><input id="editProdNombre" value="${datos.nombre || ''}" /></div>
             <div><label>Fecha</label><input id="editProdFecha" type="date" value="${datos.fecha || ''}" /></div>
             <div><label>Responsable</label><input id="editProdResponsable" value="${datos.responsable || ''}" /></div>
-            <div><label>Peso bruto (g)</label><input id="editProdBruto" type="number" value="${datos.peso_bruto || 0}" /></div>
-            <div><label>Peso limpio (g)</label><input id="editProdLimpio" type="number" value="${datos.peso_limpio || 0}" /></div>
-            <div><label>Reutilizable (g)</label><input id="editProdReutilizable" type="number" value="${datos.reutilizable || 0}" /></div>
+            <div><label>Peso bruto (g)</label><input id="editProdBruto" type="number" step="any" value="${datos.peso_bruto || 0}" /></div>
+            <div><label>Peso limpio (g)</label><input id="editProdLimpio" type="number" step="any" value="${datos.peso_limpio || 0}" /></div>
+            <div><label>Reutilizable (g)</label><input id="editProdReutilizable" type="number" step="any" value="${datos.reutilizable || 0}" /></div>
             <div><label>Precio por kg ($)</label><input id="editProdPrecio" type="number" step="0.01" value="${datos.precio_actual || 0}" /></div>
             <div><label>Observaciones</label><textarea id="editProdObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
           </div>
@@ -650,8 +736,8 @@
               </select>
             </div>
             <div><label>Responsable</label><input id="editCoccionResponsable" value="${datos.responsable || ''}" /></div>
-            <div><label>Peso inicial (g)</label><input id="editCoccionInicial" type="number" value="${datos.peso_inicial || 0}" /></div>
-            <div><label>Peso final (g)</label><input id="editCoccionFinal" type="number" value="${datos.peso_final || 0}" /></div>
+            <div><label>Peso inicial (g)</label><input id="editCoccionInicial" type="number" step="any" value="${datos.peso_inicial || 0}" /></div>
+            <div><label>Peso final (g)</label><input id="editCoccionFinal" type="number" step="any" value="${datos.peso_final || 0}" /></div>
             <div><label>Observaciones</label><textarea id="editCoccionObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
           </div>
         `;
@@ -667,7 +753,7 @@
                   ).join('')}
                 </select>
               </td>
-              <td><input type="number" step="1" class="edit-receta-cantidad" data-idx="${idx}" value="${p.cantidad_g || 0}" /></td>
+              <td><input type="number" step="any" class="edit-receta-cantidad" data-idx="${idx}" value="${p.cantidad_g || 0}" /></td>
               <td><button class="btn-danger edit-receta-remove" data-idx="${idx}">✕</button></td>
             </tr>
           `).join('');
@@ -718,7 +804,7 @@
                 ).join('')}
               </select>
             </td>
-            <td><input type="number" step="1" class="edit-receta-cantidad" data-idx="${tbody.children.length}" value="0" /></td>
+            <td><input type="number" step="any" class="edit-receta-cantidad" data-idx="${tbody.children.length}" value="0" /></td>
             <td><button class="btn-danger edit-receta-remove" data-idx="${tbody.children.length}">✕</button></td>
           `;
           tbody.appendChild(row);
@@ -923,6 +1009,7 @@
       cargarListaProductos();
       cargarListaRendimientos();
       cargarHistorial();
+      cargarSelectoresCalculadora();
     }
 
     // ================================================================
@@ -1008,6 +1095,11 @@
       }
     });
 
+    document.getElementById('limpiarProducto').addEventListener('click', () => {
+      limpiarCamposProducto();
+      logMsg('logProductos', '🧹 Campos limpiados.', 'info');
+    });
+
     function limpiarCamposProducto() {
       document.getElementById('prodNombre').value = '';
       document.getElementById('prodBruto').value = '';
@@ -1039,7 +1131,7 @@
               <button class="borrar" data-id="${doc.id}" data-coleccion="productos">✕</button>
               <button class="editar" data-id="${doc.id}" data-coleccion="productos" data-tipo="producto">✏️ Editar</button>
               <br>
-              <span style="font-size:0.95rem;color:#999;">
+              <span style="font-size:0.9rem;color:#999;">
                 Bruto: ${data.peso_bruto}g | Limpio: ${data.peso_limpio}g | Precio: $${data.precio_actual || 0}/kg
                 ${data.responsable ? '| Resp: ' + data.responsable : ''}
               </span>
@@ -1077,6 +1169,8 @@
           opt.textContent = p.nombre + ' (factor ' + (p.factor_desperdicio || 1).toFixed(2) + ')';
           sel.appendChild(opt);
         });
+        // También actualizar selector de calculadora
+        cargarSelectoresCalculadora();
       } catch (e) {
         console.error('Error cargando productos:', e);
       }
@@ -1106,15 +1200,23 @@
         const rendPorcentaje = (final / inicial) * 100;
         const total = factorDesp * factor;
         const merma = Math.max(0, inicial - final);
+        // Costo por kg cocido (si el producto tiene precio)
+        const prodId = sel.value;
+        const prod = productosCache.find(p => p.id === prodId);
+        const precioBruto = prod ? prod.precio_actual || 0 : 0;
+        const costoKgCocido = precioBruto * factor;
+
         document.getElementById('coccionMerma').value = merma.toFixed(2);
         document.getElementById('factorCoccion').textContent = factor.toFixed(4);
         document.getElementById('rendimientoPorcentajeCoccion').textContent = rendPorcentaje.toFixed(2) + '%';
         document.getElementById('factorTotalCoccion').textContent = total.toFixed(4);
+        document.getElementById('costoKgCocido').textContent = '$' + costoKgCocido.toFixed(2);
       } else {
         document.getElementById('coccionMerma').value = '';
         document.getElementById('factorCoccion').textContent = '—';
         document.getElementById('rendimientoPorcentajeCoccion').textContent = '—';
         document.getElementById('factorTotalCoccion').textContent = '—';
+        document.getElementById('costoKgCocido').textContent = '—';
       }
     }
 
@@ -1162,19 +1264,29 @@
           created_at: new Date()
         });
         logMsg(logId, '✅ Rendimiento guardado.', 'exito');
-        document.getElementById('coccionInicial').value = '';
-        document.getElementById('coccionFinal').value = '';
-        document.getElementById('coccionFecha').value = new Date().toISOString().split('T')[0];
-        document.getElementById('coccionResponsable').value = '';
-        document.getElementById('coccionObservaciones').value = '';
-        document.getElementById('coccionMerma').value = '';
-        calcularFactoresCoccion();
+        limpiarCamposCoccion();
         recargarTodo();
       } catch (e) {
         logMsg(logId, '❌ Error: ' + e.message, 'error');
         console.error(e);
       }
     });
+
+    document.getElementById('limpiarCoccion').addEventListener('click', () => {
+      limpiarCamposCoccion();
+      logMsg('logCoccion', '🧹 Campos limpiados.', 'info');
+    });
+
+    function limpiarCamposCoccion() {
+      document.getElementById('coccionInicial').value = '';
+      document.getElementById('coccionFinal').value = '';
+      document.getElementById('coccionFecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('coccionResponsable').value = '';
+      document.getElementById('coccionObservaciones').value = '';
+      document.getElementById('coccionMerma').value = '';
+      document.getElementById('coccionProducto').value = '';
+      calcularFactoresCoccion();
+    }
 
     async function cargarListaRendimientos() {
       const contenedor = document.getElementById('listaRendimientos');
@@ -1196,7 +1308,7 @@
               <button class="borrar" data-id="${doc.id}" data-coleccion="rendimientos_coccion">✕</button>
               <button class="editar" data-id="${doc.id}" data-coleccion="rendimientos_coccion" data-tipo="coccion">✏️ Editar</button>
               <br>
-              <span style="font-size:0.95rem;color:#999;">
+              <span style="font-size:0.9rem;color:#999;">
                 Inicial: ${data.peso_inicial}g | Final: ${data.peso_final}g | Merma: ${data.merma || 0}g
                 ${data.responsable ? '| Resp: ' + data.responsable : ''}
               </span>
@@ -1270,7 +1382,7 @@
               ).join('')}
             </select>
           </td>
-          <td><input type="number" step="1" class="receta-cantidad" data-idx="${idx}" value="${item.cantidad_g || 0}" style="width:80px;" /></td>
+          <td><input type="number" step="any" class="receta-cantidad" data-idx="${idx}" value="${item.cantidad_g || 0}" style="width:80px;" /></td>
           <td>${(item.factor_desperdicio || 1).toFixed(2)}</td>
           <td>${rendPorcentaje.toFixed(1)}%</td>
           <td>${(item.factor_total || 1).toFixed(4)}</td>
@@ -1302,7 +1414,12 @@
       tbody.querySelectorAll('.receta-cantidad').forEach(inp => {
         inp.addEventListener('input', function() {
           const idx = parseInt(this.dataset.idx);
-          productosReceta[idx].cantidad_g = parseFloat(this.value) || 0;
+          const val = parseFloat(this.value);
+          if (!isNaN(val)) {
+            productosReceta[idx].cantidad_g = val;
+          } else {
+            productosReceta[idx].cantidad_g = 0;
+          }
           renderProductosReceta();
         });
       });
@@ -1357,6 +1474,16 @@
       actualizarResumenReceta();
     });
     document.getElementById('recetaNumPorciones').addEventListener('input', () => {
+      actualizarResumenReceta();
+    });
+
+    // Limpiar campos de porciones individualmente
+    document.getElementById('limpiarPorcionGramos').addEventListener('click', () => {
+      document.getElementById('recetaPorcionGramos').value = '';
+      actualizarResumenReceta();
+    });
+    document.getElementById('limpiarNumPorciones').addEventListener('click', () => {
+      document.getElementById('recetaNumPorciones').value = '';
       actualizarResumenReceta();
     });
 
@@ -1469,7 +1596,60 @@
     });
 
     // ================================================================
-    // 4. HISTORIAL Y EXPORTACIÓN PDF
+    // 4. CALCULADORA DE COMPRAS
+    // ================================================================
+    function cargarSelectoresCalculadora() {
+      const sel = document.getElementById('calcProducto');
+      sel.innerHTML = '<option value="">Seleccionar</option>';
+      productosCache.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nombre;
+        sel.appendChild(opt);
+      });
+    }
+
+    document.getElementById('calcularCompra').addEventListener('click', () => {
+      const prodId = document.getElementById('calcProducto').value;
+      const netoDeseado = parseFloat(document.getElementById('calcNeto').value) || 0;
+      if (!prodId || netoDeseado <= 0) {
+        logMsg('logCalc', '❌ Seleccioná un producto y una cantidad final > 0.', 'error');
+        return;
+      }
+      const prod = productosCache.find(p => p.id === prodId);
+      if (!prod) {
+        logMsg('logCalc', '❌ Producto no encontrado.', 'error');
+        return;
+      }
+      // Buscar el último rendimiento de cocción para este producto
+      const rend = rendimientosCache.find(r => r.producto_id === prodId);
+      const factorCoc = rend ? rend.factor_coccion : 1;
+      const factorDesp = prod.factor_desperdicio || 1;
+      const factorTotal = factorDesp * factorCoc;
+      const brutoNecesario = netoDeseado / factorTotal;
+      const costoEstimado = (brutoNecesario / 1000) * (prod.precio_actual || 0);
+
+      document.getElementById('calcFactorTotal').value = factorTotal.toFixed(4);
+      document.getElementById('calcBrutoNecesario').textContent = brutoNecesario.toFixed(2) + ' g';
+      document.getElementById('calcCostoEstimado').textContent = '$' + costoEstimado.toFixed(2);
+      document.getElementById('calcFactorDesp').textContent = factorDesp.toFixed(2);
+      document.getElementById('calcFactorCoccion').textContent = factorCoc.toFixed(4);
+      logMsg('logCalc', '✅ Cálculo completado.', 'exito');
+    });
+
+    document.getElementById('limpiarCalc').addEventListener('click', () => {
+      document.getElementById('calcProducto').value = '';
+      document.getElementById('calcNeto').value = '';
+      document.getElementById('calcFactorTotal').value = '';
+      document.getElementById('calcBrutoNecesario').textContent = '—';
+      document.getElementById('calcCostoEstimado').textContent = '—';
+      document.getElementById('calcFactorDesp').textContent = '—';
+      document.getElementById('calcFactorCoccion').textContent = '—';
+      document.getElementById('logCalc').innerHTML = '';
+    });
+
+    // ================================================================
+    // 5. HISTORIAL
     // ================================================================
     async function cargarHistorial() {
       const contenedor = document.getElementById('historial');
@@ -1490,7 +1670,7 @@
               <button class="borrar" data-id="${doc.id}" data-coleccion="recetas">✕</button>
               <button class="editar" data-id="${doc.id}" data-coleccion="recetas" data-tipo="receta">✏️ Editar</button>
               <br>
-              <span style="font-size:0.95rem;color:#999;">
+              <span style="font-size:0.9rem;color:#999;">
                 Costo final: $${(data.costo_final || 0).toFixed(2)} |
                 ${totalProds} productos |
                 ${data.responsable ? 'Resp: ' + data.responsable : ''}
@@ -1510,56 +1690,6 @@
     document.getElementById('refrescarHistorial').addEventListener('click', cargarHistorial);
     document.getElementById('refrescarProductos').addEventListener('click', recargarTodo);
     document.getElementById('refrescarCoccion').addEventListener('click', recargarTodo);
-
-    // Exportar PDF
-    document.getElementById('exportarPDF').addEventListener('click', async function() {
-      const contenedor = document.getElementById('historial');
-      const boton = this;
-      boton.textContent = '⏳ Generando...';
-      boton.disabled = true;
-
-      // Esperar a que se renderice el contenido
-      await new Promise(r => setTimeout(r, 300));
-
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const margin = 10;
-      const usableWidth = pageWidth - 2 * margin;
-
-      // Título
-      pdf.setFontSize(18);
-      pdf.text('Listado de Recetas - Costeo', margin, 20);
-
-      // Capturar cada tarjeta
-      const cards = contenedor.querySelectorAll('.card');
-      if (cards.length === 0) {
-        pdf.text('No hay recetas guardadas.', margin, 40);
-      } else {
-        let y = 30;
-        cards.forEach((card, index) => {
-          // Extraer datos
-          const titulo = card.querySelector('strong')?.textContent || 'Sin título';
-          const badge = card.querySelector('.badge')?.textContent || '';
-          const info = card.querySelector('span:last-child')?.textContent || '';
-          // Línea
-          pdf.setFontSize(12);
-          pdf.text(`${index+1}. ${titulo} ${badge}`, margin, y);
-          pdf.setFontSize(10);
-          const lines = pdf.splitTextToSize(info, usableWidth);
-          pdf.text(lines, margin + 5, y + 6);
-          y += 6 + (lines.length * 5) + 6;
-          if (y > 270) {
-            pdf.addPage();
-            y = 20;
-          }
-        });
-      }
-
-      pdf.save('recetas_costeo.pdf');
-      boton.textContent = '📄 Exportar PDF';
-      boton.disabled = false;
-    });
 
     // ================================================================
     // FUNCIONES COMUNES PARA LISTAS (editar/eliminar)
@@ -1612,6 +1742,7 @@
       logMsg('logProductos', '✅ App lista.', 'exito');
       logMsg('logCoccion', '✅ Listo.', 'exito');
       logMsg('logRecetas', '✅ Listo.', 'exito');
+      logMsg('logCalc', '✅ Calculadora lista.', 'exito');
     })();
   </script>
 </body>
