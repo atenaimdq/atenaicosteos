@@ -7,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
-    /* (Mismo CSS que la versión anterior, sin cambios) */
+    /* (Mismo CSS que la versión anterior, solo se agrega un pequeño estilo para la pestaña) */
     * {
       box-sizing: border-box;
       font-family: 'Courier New', monospace;
@@ -412,7 +412,7 @@
       <h1>🧑‍🍳 atenai-costeos</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
-        <span>Versión 1.1 · 30/06/2026</span>
+        <span>Versión 1.2 · 30/06/2026 23:00 hs</span>
       </div>
     </div>
 
@@ -421,6 +421,7 @@
       <button class="tab-btn" data-tab="tab2">🔥 Rendimiento cocción</button>
       <button class="tab-btn" data-tab="tab3">📝 2. Recetas</button>
       <button class="tab-btn" data-tab="tab5">📊 Calculadora de compras</button>
+      <button class="tab-btn" data-tab="tab6">🛒 Compras</button>
       <button class="tab-btn" data-tab="tab4">📋 3. Historial</button>
     </div>
 
@@ -436,7 +437,7 @@
           <div><label>Peso limpio (g)</label><input id="prodLimpio" type="number" step="any" placeholder="1750" /></div>
           <div><label>Desperdicio (g) <span style="color:#666;">(auto)</span></label><input id="prodDesperdicio" readonly /></div>
           <div><label>Reutilizable (g)</label><input id="prodReutilizable" type="number" step="any" placeholder="0" /></div>
-          <div><label>Precio por kg ($)</label><input id="prodPrecio" type="number" step="0.01" placeholder="10000" /></div>
+          <div><label>Precio por kg ($) <span style="color:#666;">(auto desde compras)</span></label><input id="prodPrecio" type="number" step="0.01" readonly style="background:#1a1a1a;color:#4caf50;" /></div>
           <div><label>Observaciones</label><textarea id="prodObservaciones" rows="2"></textarea></div>
         </div>
         <div class="factor-box">
@@ -615,7 +616,34 @@
       </div>
     </div>
 
-    <!-- ===== PESTAÑA 5: HISTORIAL ===== -->
+    <!-- ===== PESTAÑA 5: COMPRAS ===== -->
+    <div id="tab6" class="tab-panel">
+      <div class="seccion">
+        <h3>🛒 Registro de compras</h3>
+        <div class="grid-3">
+          <div><label>Fecha de compra</label><input id="compraFecha" type="date" /></div>
+          <div><label>Proveedor</label><input id="compraProveedor" placeholder="Nombre del proveedor" /></div>
+          <div><label>Producto</label>
+            <select id="compraProducto">
+              <option value="">Seleccionar</option>
+            </select>
+          </div>
+          <div><label>Cantidad comprada (kg)</label><input id="compraCantidad" type="number" step="any" placeholder="ej. 2.5" /></div>
+          <div><label>Precio total pagado ($)</label><input id="compraPrecioTotal" type="number" step="any" placeholder="ej. 25000" /></div>
+          <div><label>Precio por kg (calculado)</label><input id="compraPrecioKg" readonly style="background:#1a1a1a;color:#4caf50;font-weight:bold;" /></div>
+        </div>
+        <div class="flex">
+          <button id="guardarCompra">Guardar compra</button>
+          <button id="limpiarCompra" class="btn-sec">🧹 Limpiar campos</button>
+          <button id="refrescarCompras" class="btn-sec">🔄 Refrescar lista</button>
+        </div>
+        <div id="logCompras" class="log"></div>
+        <h4 style="margin-top:2rem;">📋 Historial de compras</h4>
+        <div id="listaCompras" class="historial"></div>
+      </div>
+    </div>
+
+    <!-- ===== PESTAÑA 6: HISTORIAL ===== -->
     <div id="tab4" class="tab-panel">
       <div class="seccion">
         <h3>📋 Historial de recetas</h3>
@@ -988,10 +1016,13 @@
     async function recargarTodo() {
       await cargarSelectsProductos();
       await cargarRendimientosCoccion();
+      await cargarCompras();
       cargarListaProductos();
       cargarListaRendimientos();
       cargarHistorial();
       cargarSelectoresCalculadora();
+      cargarSelectoresCompras();
+      actualizarPreciosDesdeCompras();
     }
 
     // ================================================================
@@ -1035,6 +1066,9 @@
       calcularDesperdicioAutomatico();
       calcularFactoresProducto();
     });
+
+    // El precio ahora se actualiza automáticamente desde compras, no desde input manual
+    // Pero mantenemos la función para cuando se edite manualmente en el modal
     document.getElementById('prodPrecio').addEventListener('input', calcularFactoresProducto);
 
     document.getElementById('guardarProducto').addEventListener('click', async () => {
@@ -1095,36 +1129,29 @@
       calcularFactoresProducto();
     }
 
-    async function cargarListaProductos() {
-      const contenedor = document.getElementById('listaProductos');
+    // ================================================================
+    // ACTUALIZAR PRECIOS DESDE COMPRAS
+    // ================================================================
+    async function actualizarPreciosDesdeCompras() {
       try {
-        const snap = await db.collection('productos').orderBy('created_at', 'desc').get();
-        if (snap.empty) {
-          contenedor.innerHTML = '<p style="color:#666;">No hay productos guardados.</p>';
-          return;
-        }
-        let html = '';
+        const snap = await db.collection('compras').orderBy('fecha', 'desc').get();
+        const preciosPorProducto = {};
         snap.forEach(doc => {
           const data = doc.data();
-          html += `
-            <div class="card">
-              <strong>${data.nombre}</strong>
-              <span class="badge">Factor: ${(data.factor_desperdicio || 0).toFixed(2)}</span>
-              <button class="borrar" data-id="${doc.id}" data-coleccion="productos">✕</button>
-              <button class="editar" data-id="${doc.id}" data-coleccion="productos" data-tipo="producto">✏️ Editar</button>
-              <br>
-              <span style="font-size:0.9rem;color:#999;">
-                Bruto: ${data.peso_bruto}g | Limpio: ${data.peso_limpio}g | Precio: $${data.precio_actual || 0}/kg
-                ${data.responsable ? '| Resp: ' + data.responsable : ''}
-              </span>
-            </div>
-          `;
+          const prodId = data.producto_id;
+          if (prodId && !preciosPorProducto[prodId]) {
+            preciosPorProducto[prodId] = data.precio_kg;
+          }
         });
-        contenedor.innerHTML = html;
-        asignarEventosLista(contenedor);
+        // Actualizar productos en Firestore con el último precio
+        for (const [prodId, precio] of Object.entries(preciosPorProducto)) {
+          await db.collection('productos').doc(prodId).update({ precio_actual: precio });
+        }
+        // Refrescar la vista de productos
+        await cargarSelectsProductos();
+        cargarListaProductos();
       } catch (e) {
-        console.error('Error cargando productos:', e);
-        contenedor.innerHTML = '<p style="color:#ef5350;">Error al cargar.</p>';
+        console.error('Error actualizando precios desde compras:', e);
       }
     }
 
@@ -1152,6 +1179,7 @@
           sel.appendChild(opt);
         });
         cargarSelectoresCalculadora();
+        cargarSelectoresCompras();
       } catch (e) {
         console.error('Error cargando productos:', e);
       }
@@ -1268,43 +1296,8 @@
       calcularFactoresCoccion();
     }
 
-    async function cargarListaRendimientos() {
-      const contenedor = document.getElementById('listaRendimientos');
-      try {
-        const snap = await db.collection('rendimientos_coccion').orderBy('created_at', 'desc').get();
-        if (snap.empty) {
-          contenedor.innerHTML = '<p style="color:#666;">No hay rendimientos guardados.</p>';
-          return;
-        }
-        let html = '';
-        snap.forEach(doc => {
-          const data = doc.data();
-          const prod = productosCache.find(p => p.id === data.producto_id);
-          const nombreProd = prod ? prod.nombre : 'Producto eliminado';
-          html += `
-            <div class="card">
-              <strong>${nombreProd}</strong>
-              <span class="badge">Factor: ${(data.factor_coccion || 0).toFixed(2)}</span>
-              <button class="borrar" data-id="${doc.id}" data-coleccion="rendimientos_coccion">✕</button>
-              <button class="editar" data-id="${doc.id}" data-coleccion="rendimientos_coccion" data-tipo="coccion">✏️ Editar</button>
-              <br>
-              <span style="font-size:0.9rem;color:#999;">
-                Inicial: ${data.peso_inicial}g | Final: ${data.peso_final}g | Merma: ${data.merma || 0}g
-                ${data.responsable ? '| Resp: ' + data.responsable : ''}
-              </span>
-            </div>
-          `;
-        });
-        contenedor.innerHTML = html;
-        asignarEventosLista(contenedor);
-      } catch (e) {
-        console.error('Error cargando rendimientos:', e);
-        contenedor.innerHTML = '<p style="color:#ef5350;">Error al cargar.</p>';
-      }
-    }
-
     // ================================================================
-    // 3. RECETAS (CORREGIDO: cantidad con input + timeout)
+    // 3. RECETAS
     // ================================================================
     let productosReceta = [];
 
@@ -1392,7 +1385,6 @@
         });
       });
 
-      // CORRECCIÓN: usar timeout para evitar pérdida de foco
       let timeoutId;
       tbody.querySelectorAll('.receta-cantidad').forEach(inp => {
         inp.addEventListener('input', function() {
@@ -1583,7 +1575,7 @@
     });
 
     // ================================================================
-    // 4. CALCULADORA DE COMPRAS (CORREGIDA)
+    // 4. CALCULADORA DE COMPRAS
     // ================================================================
     function cargarSelectoresCalculadora() {
       const sel = document.getElementById('calcProducto');
@@ -1596,7 +1588,6 @@
       });
     }
 
-    // Al seleccionar producto, actualizar factores automáticamente
     document.getElementById('calcProducto').addEventListener('change', function() {
       const prodId = this.value;
       if (prodId) {
@@ -1654,7 +1645,122 @@
     });
 
     // ================================================================
-    // 5. HISTORIAL
+    // 5. COMPRAS
+    // ================================================================
+    function cargarSelectoresCompras() {
+      const sel = document.getElementById('compraProducto');
+      sel.innerHTML = '<option value="">Seleccionar</option>';
+      productosCache.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nombre;
+        sel.appendChild(opt);
+      });
+    }
+
+    document.getElementById('compraCantidad').addEventListener('input', calcularPrecioKg);
+    document.getElementById('compraPrecioTotal').addEventListener('input', calcularPrecioKg);
+
+    function calcularPrecioKg() {
+      const cantidad = parseFloat(document.getElementById('compraCantidad').value) || 0;
+      const total = parseFloat(document.getElementById('compraPrecioTotal').value) || 0;
+      if (cantidad > 0 && total > 0) {
+        const precioKg = total / cantidad;
+        document.getElementById('compraPrecioKg').value = precioKg.toFixed(2);
+      } else {
+        document.getElementById('compraPrecioKg').value = '';
+      }
+    }
+
+    document.getElementById('guardarCompra').addEventListener('click', async () => {
+      const logId = 'logCompras';
+      logMsg(logId, '🔄 Guardando compra...');
+      const fecha = document.getElementById('compraFecha').value;
+      const proveedor = document.getElementById('compraProveedor').value.trim();
+      const productoId = document.getElementById('compraProducto').value;
+      const cantidad = parseFloat(document.getElementById('compraCantidad').value) || 0;
+      const precioTotal = parseFloat(document.getElementById('compraPrecioTotal').value) || 0;
+      const precioKg = parseFloat(document.getElementById('compraPrecioKg').value) || 0;
+
+      if (!fecha || !proveedor || !productoId || cantidad <= 0 || precioTotal <= 0) {
+        logMsg(logId, '❌ Todos los campos son obligatorios (fecha, proveedor, producto, cantidad > 0, precio total > 0).', 'error');
+        return;
+      }
+
+      try {
+        await db.collection('compras').add({
+          fecha,
+          proveedor,
+          producto_id: productoId,
+          cantidad,
+          precio_total: precioTotal,
+          precio_kg: precioKg,
+          created_at: new Date()
+        });
+        logMsg(logId, '✅ Compra guardada.', 'exito');
+        // Actualizar el precio del producto automáticamente
+        await actualizarPreciosDesdeCompras();
+        limpiarCamposCompra();
+        recargarTodo();
+      } catch (e) {
+        logMsg(logId, '❌ Error: ' + e.message, 'error');
+        console.error(e);
+      }
+    });
+
+    document.getElementById('limpiarCompra').addEventListener('click', () => {
+      limpiarCamposCompra();
+      logMsg('logCompras', '🧹 Campos limpiados.', 'info');
+    });
+
+    function limpiarCamposCompra() {
+      document.getElementById('compraFecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('compraProveedor').value = '';
+      document.getElementById('compraProducto').value = '';
+      document.getElementById('compraCantidad').value = '';
+      document.getElementById('compraPrecioTotal').value = '';
+      document.getElementById('compraPrecioKg').value = '';
+    }
+
+    async function cargarListaCompras() {
+      const contenedor = document.getElementById('listaCompras');
+      try {
+        const snap = await db.collection('compras').orderBy('fecha', 'desc').get();
+        if (snap.empty) {
+          contenedor.innerHTML = '<p style="color:#666;">No hay compras registradas.</p>';
+          return;
+        }
+        let html = '';
+        snap.forEach(doc => {
+          const data = doc.data();
+          const prod = productosCache.find(p => p.id === data.producto_id);
+          const nombreProd = prod ? prod.nombre : 'Producto eliminado';
+          html += `
+            <div class="card">
+              <strong>${data.proveedor}</strong>
+              <span class="badge">${nombreProd}</span>
+              <button class="borrar" data-id="${doc.id}" data-coleccion="compras">✕</button>
+              <br>
+              <span style="font-size:0.9rem;color:#999;">
+                ${data.fecha} | ${data.cantidad} kg | Total: $${data.precio_total.toFixed(2)} | $/kg: $${data.precio_kg.toFixed(2)}
+              </span>
+            </div>
+          `;
+        });
+        contenedor.innerHTML = html;
+        asignarEventosLista(contenedor);
+      } catch (e) {
+        console.error('Error cargando compras:', e);
+        contenedor.innerHTML = '<p style="color:#ef5350;">Error al cargar.</p>';
+      }
+    }
+
+    async function cargarCompras() {
+      await cargarListaCompras();
+    }
+
+    // ================================================================
+    // 6. HISTORIAL
     // ================================================================
     async function cargarHistorial() {
       const contenedor = document.getElementById('historial');
@@ -1695,6 +1801,7 @@
     document.getElementById('refrescarHistorial').addEventListener('click', cargarHistorial);
     document.getElementById('refrescarProductos').addEventListener('click', recargarTodo);
     document.getElementById('refrescarCoccion').addEventListener('click', recargarTodo);
+    document.getElementById('refrescarCompras').addEventListener('click', recargarTodo);
 
     // ================================================================
     // FUNCIONES COMUNES PARA LISTAS
@@ -1731,23 +1838,29 @@
     (async function init() {
       await cargarSelectsProductos();
       await cargarRendimientosCoccion();
+      await cargarCompras();
       productosReceta = [];
       renderProductosReceta();
       cargarListaProductos();
       cargarListaRendimientos();
       cargarHistorial();
+      cargarSelectoresCalculadora();
+      cargarSelectoresCompras();
       calcularFactoresProducto();
       calcularFactoresCoccion();
+      await actualizarPreciosDesdeCompras();
 
       const hoy = new Date().toISOString().split('T')[0];
       document.getElementById('prodFecha').value = hoy;
       document.getElementById('coccionFecha').value = hoy;
       document.getElementById('recetaFecha').value = hoy;
+      document.getElementById('compraFecha').value = hoy;
 
       logMsg('logProductos', '✅ App lista.', 'exito');
       logMsg('logCoccion', '✅ Listo.', 'exito');
       logMsg('logRecetas', '✅ Listo.', 'exito');
       logMsg('logCalc', '✅ Calculadora lista.', 'exito');
+      logMsg('logCompras', '✅ Módulo de compras listo.', 'exito');
     })();
   </script>
 </body>
