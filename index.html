@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>atenai-costeos v2.1</title>
+  <title>atenai-costeos v2.2</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
@@ -409,10 +409,10 @@
   <div class="container">
 
     <div class="header">
-      <h1>🧑‍🍳 atenai-costeos v2.1</h1>
+      <h1>🧑‍🍳 atenai-costeos v2.2</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
-        <span>Versión 2.1 · 01/07/2026 01:30 hs</span>
+        <span>Versión 2.2 · 01/07/2026 02:00 hs</span>
       </div>
     </div>
 
@@ -526,6 +526,8 @@
           <span class="value" id="rendCoccionPorcentaje">—</span>
           <span class="text-muted">Factor total (desp × cocción):</span>
           <span class="value" id="rendCoccionTotal">—</span>
+          <span class="text-muted">Precio por kg cocido:</span>
+          <span class="value" id="rendCoccionPrecioKg">—</span>
         </div>
         <div class="flex">
           <button id="guardarRendCoccion">Guardar</button>
@@ -616,7 +618,7 @@
                 <th>Factor desp.</th>
                 <th>Rend. cocción %</th>
                 <th>Factor total</th>
-                <th>Precio $/kg</th>
+                <th>Precio $/kg cocido</th>
                 <th>Costo $</th>
                 <th>% Peso</th>
                 <th>% Costo</th>
@@ -652,7 +654,7 @@
         </div>
 
         <div class="resumen">
-          <div class="resumen-item"><span class="label">Peso total (g)</span><div class="value" id="resPesoTotal">0</div></div>
+          <div class="resumen-item"><span class="label">Peso total cocido (g)</span><div class="value" id="resPesoTotal">0</div></div>
           <div class="resumen-item"><span class="label">Costo ingredientes</span><div class="value" id="resCostoTotalReceta">$0.00</div></div>
           <div class="resumen-item"><span class="label">Costo subrecetas</span><div class="value" id="resCostoSubrecetas">$0.00</div></div>
           <div class="resumen-item"><span class="label">Costo total receta</span><div class="value" id="resCostoFinalReceta">$0.00</div></div>
@@ -951,6 +953,9 @@
           const factorTotal = factorDesp * factorCoc;
           const rendPorcentaje = (final / inicial) * 100;
           const merma = Math.max(0, inicial - final);
+          // Precio por kg cocido = precio_bruto * factor_total
+          const precioBruto = prod ? prod.precio_actual || 0 : 0;
+          const precioKgCocido = precioBruto * factorTotal;
           datosActualizados = {
             producto_id: productoId,
             fecha,
@@ -962,6 +967,7 @@
             factor_coccion: factorCoc,
             factor_total: factorTotal,
             rendimiento_porcentaje: rendPorcentaje,
+            precio_kg_cocido: precioKgCocido,
             observaciones
           };
         } else if (tipo === 'compra') {
@@ -1187,7 +1193,7 @@
     }
 
     // ================================================================
-    // 3. RENDIMIENTO POR COCCIÓN
+    // 3. RENDIMIENTO POR COCCIÓN (con precio_kg_cocido)
     // ================================================================
     let rendCoccionCache = [];
 
@@ -1207,24 +1213,27 @@
     function calcularRendCoccion() {
       const inicial = parseFloat(document.getElementById('rendCoccionInicial').value) || 0;
       const final = parseFloat(document.getElementById('rendCoccionFinal').value) || 0;
+      const prodId = document.getElementById('rendCoccionProducto').value;
+      const prod = productosCache.find(p => p.id === prodId);
       if (inicial > 0 && final > 0) {
         const factor = inicial / final;
         const rendPorcentaje = (final / inicial) * 100;
         const merma = Math.max(0, inicial - final);
+        const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
+        const factorTotal = factorDesp * factor;
+        const precioBruto = prod ? prod.precio_actual || 0 : 0;
+        const precioKgCocido = precioBruto * factorTotal;
         document.getElementById('rendCoccionMerma').value = merma.toFixed(2);
         document.getElementById('rendCoccionFactor').textContent = factor.toFixed(4);
         document.getElementById('rendCoccionPorcentaje').textContent = rendPorcentaje.toFixed(2) + '%';
-        // Factor total (se necesita el factor desperdicio del producto)
-        const prodId = document.getElementById('rendCoccionProducto').value;
-        const prod = productosCache.find(p => p.id === prodId);
-        const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
-        const total = factorDesp * factor;
-        document.getElementById('rendCoccionTotal').textContent = total.toFixed(4);
+        document.getElementById('rendCoccionTotal').textContent = factorTotal.toFixed(4);
+        document.getElementById('rendCoccionPrecioKg').textContent = '$' + precioKgCocido.toFixed(2);
       } else {
         document.getElementById('rendCoccionMerma').value = '';
         document.getElementById('rendCoccionFactor').textContent = '—';
         document.getElementById('rendCoccionPorcentaje').textContent = '—';
         document.getElementById('rendCoccionTotal').textContent = '—';
+        document.getElementById('rendCoccionPrecioKg').textContent = '—';
       }
     }
 
@@ -1251,6 +1260,8 @@
       const factorTotal = factorDesp * factorCoc;
       const rendPorcentaje = (final / inicial) * 100;
       const merma = Math.max(0, inicial - final);
+      const precioBruto = prod ? prod.precio_actual || 0 : 0;
+      const precioKgCocido = precioBruto * factorTotal;
       try {
         await db.collection('rendimientos_coccion').add({
           producto_id: productoId,
@@ -1263,6 +1274,7 @@
           factor_coccion: factorCoc,
           factor_total: factorTotal,
           rendimiento_porcentaje: rendPorcentaje,
+          precio_kg_cocido: precioKgCocido,
           observaciones,
           created_at: new Date()
         });
@@ -1346,7 +1358,6 @@
           created_at: new Date()
         });
         logMsg(logId, '✅ Compra guardada.', 'exito');
-        // Actualizar precio del producto
         await actualizarPreciosDesdeCompras();
         limpiarCompra();
         recargarTodo();
@@ -1387,9 +1398,7 @@
         for (const [prodId, precio] of Object.entries(precios)) {
           await db.collection('productos').doc(prodId).update({ precio_actual: precio });
         }
-        // Actualizar cache local
         await cargarProductos();
-        // Refrescar listados
         cargarListaProductos();
       } catch (e) {
         console.error('Error actualizando precios desde compras:', e);
@@ -1397,7 +1406,7 @@
     }
 
     // ================================================================
-    // 5. RECETAS (con subrecetas y costeo corregido)
+    // 5. RECETAS (con costeo corregido usando precio_kg_cocido)
     // ================================================================
     let productosReceta = [];
     let subrecetasReceta = [];
@@ -1412,23 +1421,28 @@
         let costoTotal = 0;
         productosReceta.forEach(item => {
           const prod = productosCache.find(p => p.id === item.producto_id);
-          // Factor desperdicio desde rendimiento crudo más reciente
-          const rendCrudo = rendCrudoCache.find(r => r.producto_id === item.producto_id);
-          const factorDesp = rendCrudo ? rendCrudo.factor_desperdicio : 1;
-          // Factor cocción desde rendimiento cocción más reciente
+          // Obtener el precio por kg cocido desde el rendimiento por cocción más reciente
           const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
-          const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
-          const factorTotal = factorDesp * factorCoc;
-          const precio = prod ? prod.precio_actual || 0 : 0;
+          let precioKgCocido = 0;
+          if (rendCoccion && rendCoccion.precio_kg_cocido) {
+            precioKgCocido = rendCoccion.precio_kg_cocido;
+          } else if (prod && rendCoccion) {
+            const precioBruto = prod.precio_actual || 0;
+            precioKgCocido = precioBruto * (rendCoccion.factor_total || 1);
+          } else {
+            precioKgCocido = prod ? prod.precio_actual || 0 : 0;
+          }
           const cantidad = item.cantidad_g || 0;
-          const costo = (cantidad / 1000) * precio * factorTotal;
+          // Costo = (cantidad/1000) * precio_kg_cocido
+          const costo = (cantidad / 1000) * precioKgCocido;
           pesoTotal += cantidad;
           costoTotal += costo;
           item.costo = costo;
-          item.factor_desperdicio = factorDesp;
-          item.factor_coccion = factorCoc;
-          item.factor_total = factorTotal;
-          item.precio_unitario = precio;
+          item.precio_kg_cocido = precioKgCocido;
+          item.factor_desperdicio = rendCoccion ? rendCoccion.factor_desperdicio : 1;
+          item.factor_coccion = rendCoccion ? rendCoccion.factor_coccion : 1;
+          item.factor_total = rendCoccion ? rendCoccion.factor_total : 1;
+          item.precio_unitario = prod ? prod.precio_actual || 0 : 0;
         });
         productosReceta.forEach((item, idx) => {
           const pctPeso = pesoTotal > 0 ? (item.cantidad_g / pesoTotal) * 100 : 0;
@@ -1441,7 +1455,6 @@
                 <option value="">Seleccionar</option>
                 ${productosCache.map(p =>
                   `<option value="${p.id}" ${p.id === item.producto_id ? 'selected' : ''}
-                    data-factor="${p.factor_desperdicio || 1}"
                     data-precio="${p.precio_actual || 0}">${p.nombre}</option>`
                 ).join('')}
               </select>
@@ -1450,7 +1463,7 @@
             <td>${(item.factor_desperdicio || 1).toFixed(2)}</td>
             <td>${rendPorcentaje.toFixed(1)}%</td>
             <td>${(item.factor_total || 1).toFixed(4)}</td>
-            <td>$${(item.precio_unitario || 0).toFixed(2)}</td>
+            <td>$${(item.precio_kg_cocido || 0).toFixed(2)}</td>
             <td>$${(item.costo || 0).toFixed(2)}</td>
             <td>${pctPeso.toFixed(1)}%</td>
             <td>${pctCosto.toFixed(1)}%</td>
@@ -1463,13 +1476,7 @@
           sel.addEventListener('change', function() {
             const idx = parseInt(this.dataset.idx);
             const prodId = this.value;
-            const prod = productosCache.find(p => p.id === prodId);
-            if (prod) {
-              // No se recalcula factor automático aquí, se hará al renderizar
-              productosReceta[idx].producto_id = prodId;
-            } else {
-              productosReceta[idx].producto_id = '';
-            }
+            productosReceta[idx].producto_id = prodId;
             renderProductosReceta();
           });
         });
@@ -1570,6 +1577,7 @@
     }
 
     function actualizarResumenReceta() {
+      // Calcular peso total y costos
       let pesoTotal = 0;
       let costoProductos = 0;
       productosReceta.forEach(item => {
@@ -1586,6 +1594,7 @@
       const margen = costoTotal * 0.05;
       const costoFinal = costoTotal + margen;
 
+      // Cálculo de porciones
       const porcionGramos = parseFloat(document.getElementById('recetaPorcionGramos').value) || 0;
       const numPorcionesInput = parseFloat(document.getElementById('recetaNumPorciones').value) || 0;
       let numPorciones = 0;
@@ -1667,23 +1676,31 @@
       for (const item of productosReceta) {
         const prod = productosCache.find(p => p.id === item.producto_id);
         if (!prod) continue;
-        // Obtener factores desde los rendimientos más recientes
-        const rendCrudo = rendCrudoCache.find(r => r.producto_id === item.producto_id);
-        const factorDesp = rendCrudo ? rendCrudo.factor_desperdicio : 1;
         const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
+        let precioKgCocido = 0;
+        if (rendCoccion && rendCoccion.precio_kg_cocido) {
+          precioKgCocido = rendCoccion.precio_kg_cocido;
+        } else {
+          const precioBruto = prod.precio_actual || 0;
+          const factorDesp = rendCoccion ? rendCoccion.factor_desperdicio : 1;
+          const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
+          precioKgCocido = precioBruto * factorDesp * factorCoc;
+        }
+        const cantidad = item.cantidad_g || 0;
+        const costo = (cantidad / 1000) * precioKgCocido;
+        pesoTotal += cantidad;
+        costoProductos += costo;
+        const factorDesp = rendCoccion ? rendCoccion.factor_desperdicio : 1;
         const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
         const factorTotal = factorDesp * factorCoc;
-        const precio = prod.precio_actual || 0;
-        const costo = (item.cantidad_g / 1000) * precio * factorTotal;
-        pesoTotal += item.cantidad_g;
-        costoProductos += costo;
         itemsProductos.push({
           producto_id: item.producto_id,
-          cantidad_g: item.cantidad_g,
+          cantidad_g: cantidad,
           factor_desperdicio: factorDesp,
           factor_coccion: factorCoc,
           factor_total: factorTotal,
-          precio_unitario: precio,
+          precio_unitario: prod.precio_actual || 0,
+          precio_kg_cocido: precioKgCocido,
           costo
         });
       }
@@ -1833,7 +1850,6 @@
       }
       let html = '';
       productosCache.forEach(p => {
-        // Obtener última compra para mostrar proveedor y fecha
         const ultimaCompra = comprasCache.find(c => c.producto_id === p.id);
         const proveedor = ultimaCompra ? ultimaCompra.proveedor : '—';
         const fechaCompra = ultimaCompra ? ultimaCompra.fecha : '—';
@@ -1904,6 +1920,7 @@
             <span style="font-size:0.9rem;color:#999;">
               Inicial: ${r.peso_inicial}g | Final: ${r.peso_final}g | Merma: ${r.merma || 0}g
               ${r.responsable ? '| Resp: ' + r.responsable : ''}
+              Precio kg cocido: $${(r.precio_kg_cocido || 0).toFixed(2)}
             </span>
           </div>
         `;
@@ -1991,7 +2008,6 @@
         let count = 0;
         for (const doc of snap.docs) {
           const data = doc.data();
-          // Recalcular productos
           let pesoTotal = 0;
           let costoProductos = 0;
           const itemsProductos = [];
@@ -1999,28 +2015,35 @@
             for (const item of data.productos) {
               const prod = productosCache.find(p => p.id === item.producto_id);
               if (!prod) continue;
-              const rendCrudo = rendCrudoCache.find(r => r.producto_id === item.producto_id);
-              const factorDesp = rendCrudo ? rendCrudo.factor_desperdicio : 1;
               const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
-              const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
-              const factorTotal = factorDesp * factorCoc;
-              const precio = prod.precio_actual || 0;
+              let precioKgCocido = 0;
+              if (rendCoccion && rendCoccion.precio_kg_cocido) {
+                precioKgCocido = rendCoccion.precio_kg_cocido;
+              } else {
+                const precioBruto = prod.precio_actual || 0;
+                const factorDesp = rendCoccion ? rendCoccion.factor_desperdicio : 1;
+                const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
+                precioKgCocido = precioBruto * factorDesp * factorCoc;
+              }
               const cantidad = item.cantidad_g || 0;
-              const costo = (cantidad / 1000) * precio * factorTotal;
+              const costo = (cantidad / 1000) * precioKgCocido;
               pesoTotal += cantidad;
               costoProductos += costo;
+              const factorDesp = rendCoccion ? rendCoccion.factor_desperdicio : 1;
+              const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
+              const factorTotal = factorDesp * factorCoc;
               itemsProductos.push({
                 producto_id: item.producto_id,
                 cantidad_g: cantidad,
                 factor_desperdicio: factorDesp,
                 factor_coccion: factorCoc,
                 factor_total: factorTotal,
-                precio_unitario: precio,
+                precio_unitario: prod.precio_actual || 0,
+                precio_kg_cocido: precioKgCocido,
                 costo
               });
             }
           }
-          // Recalcular subrecetas (se mantienen igual porque ya tienen costo_por_porcion)
           let costoSubrecetas = 0;
           const itemsSubrecetas = [];
           if (data.subrecetas && data.subrecetas.length) {
@@ -2105,7 +2128,6 @@
     // INICIALIZACIÓN
     // ================================================================
     (async function init() {
-      // Establecer fechas por defecto
       const hoy = new Date().toISOString().split('T')[0];
       document.getElementById('rendCrudoFecha').value = hoy;
       document.getElementById('rendCoccionFecha').value = hoy;
