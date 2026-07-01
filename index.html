@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>atenai-costeos v3.0</title>
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
@@ -770,7 +769,6 @@
       const body = document.getElementById('modalBody');
       const log = document.getElementById('modalLog');
       log.innerHTML = '';
-      // (Por simplicidad, solo mostramos un mensaje genérico para editar)
       body.innerHTML = `
         <p style="color:#888;">Edición de registros aún no implementada en esta versión.</p>
         <p style="color:#888;">Puedes eliminar y volver a crear el registro.</p>
@@ -1416,6 +1414,7 @@
       actualizarResumenReceta();
     }
 
+    // ===== FUNCIÓN CORREGIDA =====
     function actualizarResumenReceta() {
       let costoIngredientes = 0;
       let pesoTotalNeto = 0;
@@ -1438,6 +1437,7 @@
         costoIngredientes += costo;
         pesoTotalNeto += pesoNeto;
       });
+
       // Porcentajes
       rows.forEach((row, idx) => {
         const item = ingredientesReceta[idx];
@@ -1465,13 +1465,13 @@
       const margen = costoTotal * 0.05;
       const costoFinal = costoTotal + margen;
 
-      // Porciones
+      // Porciones (CORREGIDO)
       const porcionKg = parseFloat(document.getElementById('recetaPorcionKg').value) || 0;
       let numPorciones = 0;
       if (porcionKg > 0 && pesoTotalNeto > 0) {
         numPorciones = Math.round(pesoTotalNeto / porcionKg);
       }
-      document.getElementById('recetaNumPorciones').value = numPorciones;
+      document.getElementById('recetaNumPorciones').value = numPorciones > 0 ? numPorciones : '';
 
       const costoPorPorcion = numPorciones > 0 ? costoFinal / numPorciones : 0;
 
@@ -1479,8 +1479,8 @@
       document.getElementById('resCostoSubrecetas').textContent = '$' + costoSubrecetas.toFixed(2);
       document.getElementById('resMargen').textContent = '$' + margen.toFixed(2);
       document.getElementById('resCostoTotal').textContent = '$' + costoFinal.toFixed(2);
-      document.getElementById('resCostoPorcion').textContent = '$' + costoPorPorcion.toFixed(2);
-      document.getElementById('resNumPorciones').textContent = numPorciones;
+      document.getElementById('resCostoPorcion').textContent = costoPorPorcion > 0 ? '$' + costoPorPorcion.toFixed(2) : '$0.00';
+      document.getElementById('resNumPorciones').textContent = numPorciones || 0;
     }
 
     document.getElementById('agregarIngrediente').addEventListener('click', () => {
