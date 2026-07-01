@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>atenai-costeos</title>
+  <title>atenai-costeos v2.0</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
-    /* ===== CSS (igual que la versión anterior, sin cambios) ===== */
+    /* ===== RESET Y BASE ===== */
     * {
       box-sizing: border-box;
       font-family: 'Courier New', monospace;
@@ -409,29 +409,31 @@
   <div class="container">
 
     <div class="header">
-      <h1>🧑‍🍳 atenai-costeos</h1>
+      <h1>🧑‍🍳 atenai-costeos v2.0</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
-        <span>Versión 1.4 · 01/07/2026 01:00 hs</span>
+        <span>Versión 2.0 · 01/07/2026 01:30 hs</span>
       </div>
     </div>
 
     <div class="tabs">
-      <button class="tab-btn activo" data-tab="tab1">📦 1. Productos</button>
-      <button class="tab-btn" data-tab="tab2">🔥 Rendimiento cocción</button>
-      <button class="tab-btn" data-tab="tab3">📝 2. Recetas</button>
-      <button class="tab-btn" data-tab="tab5">📊 Calculadora de compras</button>
-      <button class="tab-btn" data-tab="tab6">🛒 Compras</button>
-      <button class="tab-btn" data-tab="tab4">📋 3. Historial</button>
+      <button class="tab-btn activo" data-tab="tab1">📦 Productos</button>
+      <button class="tab-btn" data-tab="tab2">⚖️ Rendimiento crudo</button>
+      <button class="tab-btn" data-tab="tab3">🔥 Rendimiento cocción</button>
+      <button class="tab-btn" data-tab="tab4">🛒 Compras</button>
+      <button class="tab-btn" data-tab="tab5">📝 Recetas</button>
+      <button class="tab-btn" data-tab="tab6">📊 Calculadora</button>
+      <button class="tab-btn" data-tab="tab7">📋 Historial</button>
     </div>
 
-    <!-- ===== PESTAÑA 1: PRODUCTOS ===== -->
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 1: PRODUCTOS (catálogo)                           -->
+    <!-- ========================================================= -->
     <div id="tab1" class="tab-panel activo">
       <div class="seccion">
-        <h3>📦 Productos (rendimiento en crudo)</h3>
-        <!-- MODIFICADO: Agregué el campo "categoria" y reordené la grilla -->
+        <h3>📦 Catálogo de productos</h3>
         <div class="grid-3">
-          <div><label>Nombre</label><input id="prodNombre" placeholder="Ej. Lomo" /></div>
+          <div><label>Nombre del producto</label><input id="prodNombre" placeholder="Ej. Lomo de res" /></div>
           <div>
             <label>Categoría</label>
             <select id="prodCategoria">
@@ -440,79 +442,137 @@
               <option value="pescaderia">Pescadería</option>
               <option value="verduleria">Verdulería</option>
               <option value="almacen">Almacén</option>
-              <option value="frescos_y_lacteos">Frescos y Lácteos</option>
+              <option value="frescos y lacteos">Frescos y lácteos</option>
               <option value="bebidas">Bebidas</option>
+              <option value="otro">Otro</option>
             </select>
           </div>
-          <div><label>Fecha</label><input id="prodFecha" type="date" /></div>
-          <div><label>Responsable</label><input id="prodResponsable" placeholder="Nombre" /></div>
-          <div><label>Peso bruto (g)</label><input id="prodBruto" type="number" step="any" placeholder="2500" /></div>
-          <div><label>Peso limpio (g)</label><input id="prodLimpio" type="number" step="any" placeholder="1750" /></div>
-          <div><label>Desperdicio (g) <span style="color:#666;">(auto)</span></label><input id="prodDesperdicio" readonly /></div>
-          <div><label>Reutilizable (g)</label><input id="prodReutilizable" type="number" step="any" placeholder="0" /></div>
-          <div><label>Precio por kg ($) <span style="color:#666;">(auto desde compras)</span></label><input id="prodPrecio" type="number" step="0.01" readonly style="background:#1a1a1a;color:#4caf50;" /></div>
-          <div><label>Observaciones</label><textarea id="prodObservaciones" rows="2"></textarea></div>
-        </div>
-        <div class="factor-box">
-          <span class="text-muted">Factor desperdicio (bruto/limpio):</span>
-          <span class="value" id="factorDesperdicio">—</span>
-          <span class="text-muted">Merma %:</span>
-          <span class="value" id="mermaPorcentaje">—</span>
-          <span class="text-muted">Costo real por kg:</span>
-          <span class="value" id="costoRealKg">—</span>
+          <div>
+            <label>Precio por kg (actual) <span style="color:#666;">(se actualiza desde compras)</span></label>
+            <input id="prodPrecio" type="number" step="0.01" readonly style="background:#1a1a1a;color:#4caf50;" />
+          </div>
+          <div>
+            <label>Unidad base</label>
+            <select id="prodUnidad">
+              <option value="kg">kg</option>
+              <option value="g">g</option>
+              <option value="litro">litro</option>
+              <option value="unidad">unidad</option>
+            </select>
+          </div>
         </div>
         <div class="flex">
-          <button id="guardarProducto">Guardar</button>
-          <button id="limpiarProducto" class="btn-sec">🧹 Limpiar campos</button>
+          <button id="guardarProducto">Guardar producto</button>
+          <button id="limpiarProducto" class="btn-sec">🧹 Limpiar</button>
           <button id="refrescarProductos" class="btn-sec">🔄 Refrescar lista</button>
         </div>
         <div id="logProductos" class="log"></div>
-        <h4 style="margin-top:2rem;">📋 Productos guardados</h4>
+        <h4 style="margin-top:2rem;">📋 Productos registrados</h4>
         <div id="listaProductos" class="historial"></div>
       </div>
     </div>
 
-    <!-- ===== PESTAÑA 2: RENDIMIENTO POR COCCIÓN ===== -->
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 2: RENDIMIENTO EN CRUDO                           -->
+    <!-- ========================================================= -->
     <div id="tab2" class="tab-panel">
       <div class="seccion">
-        <h3>🔥 Rendimiento por cocción</h3>
+        <h3>⚖️ Rendimiento en crudo (limpieza)</h3>
         <div class="grid-3">
-          <div><label>Fecha</label><input id="coccionFecha" type="date" /></div>
-          <div><label>Producto base</label>
-            <select id="coccionProducto"><option value="">Seleccionar</option></select>
+          <div><label>Producto</label>
+            <select id="rendCrudoProducto"><option value="">Seleccionar</option></select>
           </div>
-          <div><label>Responsable</label><input id="coccionResponsable" placeholder="Nombre" /></div>
-          <div><label>Peso inicial (g) – limpio</label><input id="coccionInicial" type="number" step="any" placeholder="1000" /></div>
-          <div><label>Peso final (g) – cocido</label><input id="coccionFinal" type="number" step="any" placeholder="750" /></div>
-          <div>
-            <label>Merma (g) <span style="color:#666;">(auto)</span></label>
-            <input id="coccionMerma" readonly />
-          </div>
-          <div><label>Observaciones</label><textarea id="coccionObservaciones" rows="2"></textarea></div>
+          <div><label>Fecha</label><input id="rendCrudoFecha" type="date" /></div>
+          <div><label>Responsable</label><input id="rendCrudoResponsable" placeholder="Nombre" /></div>
+          <div><label>Peso bruto (g)</label><input id="rendCrudoBruto" type="number" step="any" placeholder="2500" /></div>
+          <div><label>Peso limpio (g)</label><input id="rendCrudoLimpio" type="number" step="any" placeholder="1750" /></div>
+          <div><label>Desperdicio (g) <span style="color:#666;">(auto)</span></label><input id="rendCrudoDesperdicio" readonly /></div>
+          <div><label>Observaciones</label><textarea id="rendCrudoObservaciones" rows="2"></textarea></div>
         </div>
         <div class="factor-box">
-          <span class="text-muted">Factor rendimiento (inicial/final):</span>
-          <span class="value" id="factorCoccion">—</span>
-          <span class="text-muted">Rendimiento % (final/inicial ×100):</span>
-          <span class="value" id="rendimientoPorcentajeCoccion">—</span>
-          <span class="text-muted">Factor total (desp × cocción):</span>
-          <span class="value" id="factorTotalCoccion">—</span>
-          <span class="text-muted">Costo por kg cocido:</span>
-          <span class="value" id="costoKgCocido">—</span>
+          <span class="text-muted">Factor desperdicio (bruto/limpio):</span>
+          <span class="value" id="rendCrudoFactor">—</span>
+          <span class="text-muted">Merma %:</span>
+          <span class="value" id="rendCrudoMerma">—</span>
         </div>
         <div class="flex">
-          <button id="guardarCoccion">Guardar</button>
-          <button id="limpiarCoccion" class="btn-sec">🧹 Limpiar campos</button>
-          <button id="refrescarCoccion" class="btn-sec">🔄 Refrescar</button>
+          <button id="guardarRendCrudo">Guardar</button>
+          <button id="limpiarRendCrudo" class="btn-sec">🧹 Limpiar</button>
+          <button id="refrescarRendCrudo" class="btn-sec">🔄 Refrescar</button>
         </div>
-        <div id="logCoccion" class="log"></div>
-        <h4 style="margin-top:2rem;">📋 Rendimientos guardados</h4>
-        <div id="listaRendimientos" class="historial"></div>
+        <div id="logRendCrudo" class="log"></div>
+        <h4 style="margin-top:2rem;">📋 Rendimientos en crudo guardados</h4>
+        <div id="listaRendCrudo" class="historial"></div>
       </div>
     </div>
 
-    <!-- ===== PESTAÑA 3: RECETAS ===== -->
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 3: RENDIMIENTO POR COCCIÓN                        -->
+    <!-- ========================================================= -->
     <div id="tab3" class="tab-panel">
+      <div class="seccion">
+        <h3>🔥 Rendimiento por cocción</h3>
+        <div class="grid-3">
+          <div><label>Producto</label>
+            <select id="rendCoccionProducto"><option value="">Seleccionar</option></select>
+          </div>
+          <div><label>Fecha</label><input id="rendCoccionFecha" type="date" /></div>
+          <div><label>Responsable</label><input id="rendCoccionResponsable" placeholder="Nombre" /></div>
+          <div><label>Peso inicial (g) – limpio</label><input id="rendCoccionInicial" type="number" step="any" placeholder="1000" /></div>
+          <div><label>Peso final (g) – cocido</label><input id="rendCoccionFinal" type="number" step="any" placeholder="750" /></div>
+          <div><label>Merma (g) <span style="color:#666;">(auto)</span></label><input id="rendCoccionMerma" readonly /></div>
+          <div><label>Observaciones</label><textarea id="rendCoccionObservaciones" rows="2"></textarea></div>
+        </div>
+        <div class="factor-box">
+          <span class="text-muted">Factor cocción (inicial/final):</span>
+          <span class="value" id="rendCoccionFactor">—</span>
+          <span class="text-muted">Rendimiento % (final/inicial ×100):</span>
+          <span class="value" id="rendCoccionPorcentaje">—</span>
+          <span class="text-muted">Factor total (desp × cocción):</span>
+          <span class="value" id="rendCoccionTotal">—</span>
+        </div>
+        <div class="flex">
+          <button id="guardarRendCoccion">Guardar</button>
+          <button id="limpiarRendCoccion" class="btn-sec">🧹 Limpiar</button>
+          <button id="refrescarRendCoccion" class="btn-sec">🔄 Refrescar</button>
+        </div>
+        <div id="logRendCoccion" class="log"></div>
+        <h4 style="margin-top:2rem;">📋 Rendimientos por cocción guardados</h4>
+        <div id="listaRendCoccion" class="historial"></div>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 4: COMPRAS                                        -->
+    <!-- ========================================================= -->
+    <div id="tab4" class="tab-panel">
+      <div class="seccion">
+        <h3>🛒 Registro de compras</h3>
+        <div class="grid-3">
+          <div><label>Fecha de compra</label><input id="compraFecha" type="date" /></div>
+          <div><label>Proveedor</label><input id="compraProveedor" placeholder="Nombre" /></div>
+          <div><label>Producto</label>
+            <select id="compraProducto"><option value="">Seleccionar</option></select>
+          </div>
+          <div><label>Cantidad (kg)</label><input id="compraCantidad" type="number" step="any" placeholder="ej. 2.5" /></div>
+          <div><label>Precio total ($)</label><input id="compraPrecioTotal" type="number" step="any" placeholder="ej. 25000" /></div>
+          <div><label>Precio por kg (calculado)</label><input id="compraPrecioKg" readonly style="background:#1a1a1a;color:#4caf50;font-weight:bold;" /></div>
+        </div>
+        <div class="flex">
+          <button id="guardarCompra">Guardar compra</button>
+          <button id="limpiarCompra" class="btn-sec">🧹 Limpiar</button>
+          <button id="refrescarCompras" class="btn-sec">🔄 Refrescar</button>
+        </div>
+        <div id="logCompras" class="log"></div>
+        <h4 style="margin-top:2rem;">📋 Historial de compras</h4>
+        <div id="listaCompras" class="historial"></div>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 5: RECETAS                                        -->
+    <!-- ========================================================= -->
+    <div id="tab5" class="tab-panel">
       <div class="seccion">
         <h3>📝 Recetas y procedimientos</h3>
         <div class="grid-2">
@@ -558,7 +618,7 @@
                 <th>Producto</th>
                 <th>Cantidad (g)</th>
                 <th>Factor desp.</th>
-                <th>Rend. Cocción %</th>
+                <th>Rend. cocción %</th>
                 <th>Factor total</th>
                 <th>Precio $/kg</th>
                 <th>Costo $</th>
@@ -571,16 +631,35 @@
           </table>
         </div>
         <div class="flex">
-          <button id="agregarProductoReceta" class="btn-sec">➕ Agregar</button>
-          <button id="guardarReceta">💾 Guardar</button>
+          <button id="agregarProductoReceta" class="btn-sec">➕ Agregar producto</button>
+        </div>
+
+        <h4 style="margin-top:1.5rem;">🧑‍🍳 Adicionales / Subrecetas</h4>
+        <div class="tabla-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Subreceta</th>
+                <th>Cantidad (porciones)</th>
+                <th>Costo por porción</th>
+                <th>Costo total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="recetaSubrecetasBody"></tbody>
+          </table>
+        </div>
+        <div class="flex">
+          <button id="agregarSubrecetaReceta" class="btn-sec">➕ Agregar subreceta</button>
+          <button id="guardarReceta">💾 Guardar receta</button>
           <button id="limpiarReceta" class="btn-sec">🧹 Limpiar todo</button>
         </div>
 
         <div class="resumen">
           <div class="resumen-item"><span class="label">Peso total (g)</span><div class="value" id="resPesoTotal">0</div></div>
           <div class="resumen-item"><span class="label">Costo ingredientes</span><div class="value" id="resCostoTotalReceta">$0.00</div></div>
-          <div class="resumen-item"><span class="label">Margen (5%)</span><div class="value" id="resMargenReceta">$0.00</div></div>
-          <div class="resumen-item"><span class="label">Costo final</span><div class="value" id="resCostoFinalReceta">$0.00</div></div>
+          <div class="resumen-item"><span class="label">Costo subrecetas</span><div class="value" id="resCostoSubrecetas">$0.00</div></div>
+          <div class="resumen-item"><span class="label">Costo total receta</span><div class="value" id="resCostoFinalReceta">$0.00</div></div>
           <div class="resumen-item"><span class="label">Costo por porción</span><div class="value" id="resCostoPorcionReceta">$0.00</div></div>
           <div class="resumen-item"><span class="label">Porciones</span><div class="value" id="resNumPorcionesReceta">0</div></div>
         </div>
@@ -588,19 +667,19 @@
       </div>
     </div>
 
-    <!-- ===== PESTAÑA 4: CALCULADORA DE COMPRAS ===== -->
-    <div id="tab5" class="tab-panel">
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 6: CALCULADORA DE COMPRAS                        -->
+    <!-- ========================================================= -->
+    <div id="tab6" class="tab-panel">
       <div class="seccion">
-        <h3>📊 Calculadora de compras (bruto necesario)</h3>
+        <h3>📊 Calculadora de compras</h3>
         <div class="grid-3">
           <div>
             <label>Producto</label>
-            <select id="calcProducto">
-              <option value="">Seleccionar</option>
-            </select>
+            <select id="calcProducto"><option value="">Seleccionar</option></select>
           </div>
           <div>
-            <label>Cantidad final deseada (g) – cocida o limpia</label>
+            <label>Cantidad final deseada (g)</label>
             <input id="calcNeto" type="number" step="any" placeholder="ej. 500" />
           </div>
           <div>
@@ -624,40 +703,15 @@
         </div>
         <div id="logCalc" class="log"></div>
         <p style="color:#666;font-size:0.85rem;margin-top:0.5rem;">
-          ⚠️ Esta calculadora no guarda registros, solo ayuda a saber cuánto producto en bruto necesitas comprar para obtener una cantidad final deseada.
+          ⚠️ Esta calculadora no guarda registros. El bruto necesario se calcula según el rendimiento del producto.
         </p>
       </div>
     </div>
 
-    <!-- ===== PESTAÑA 5: COMPRAS ===== -->
-    <div id="tab6" class="tab-panel">
-      <div class="seccion">
-        <h3>🛒 Registro de compras</h3>
-        <div class="grid-3">
-          <div><label>Fecha de compra</label><input id="compraFecha" type="date" /></div>
-          <div><label>Proveedor</label><input id="compraProveedor" placeholder="Nombre del proveedor" /></div>
-          <div><label>Producto</label>
-            <select id="compraProducto">
-              <option value="">Seleccionar</option>
-            </select>
-          </div>
-          <div><label>Cantidad comprada (kg)</label><input id="compraCantidad" type="number" step="any" placeholder="ej. 2.5" /></div>
-          <div><label>Precio total pagado ($)</label><input id="compraPrecioTotal" type="number" step="any" placeholder="ej. 25000" /></div>
-          <div><label>Precio por kg (calculado)</label><input id="compraPrecioKg" readonly style="background:#1a1a1a;color:#4caf50;font-weight:bold;" /></div>
-        </div>
-        <div class="flex">
-          <button id="guardarCompra">Guardar compra</button>
-          <button id="limpiarCompra" class="btn-sec">🧹 Limpiar campos</button>
-          <button id="refrescarCompras" class="btn-sec">🔄 Refrescar lista</button>
-        </div>
-        <div id="logCompras" class="log"></div>
-        <h4 style="margin-top:2rem;">📋 Historial de compras</h4>
-        <div id="listaCompras" class="historial"></div>
-      </div>
-    </div>
-
-    <!-- ===== PESTAÑA 6: HISTORIAL ===== -->
-    <div id="tab4" class="tab-panel">
+    <!-- ========================================================= -->
+    <!-- PESTAÑA 7: HISTORIAL                                      -->
+    <!-- ========================================================= -->
+    <div id="tab7" class="tab-panel">
       <div class="seccion">
         <h3>📋 Historial de recetas</h3>
         <div id="historial" class="historial"></div>
@@ -667,7 +721,9 @@
       </div>
     </div>
 
-    <!-- ===== MODAL DE EDICIÓN ===== -->
+    <!-- ========================================================= -->
+    <!-- MODAL DE EDICIÓN                                          -->
+    <!-- ========================================================= -->
     <div id="modalEditar" class="modal">
       <div class="modal-contenido">
         <h2>✏️ Editar registro</h2>
@@ -682,9 +738,6 @@
 
   </div>
 
-  <!-- ============================================================ -->
-  <!-- JAVASCRIPT                                                   -->
-  <!-- ============================================================ -->
   <script>
     // ================================================================
     // CONFIGURACIÓN FIREBASE
@@ -725,7 +778,7 @@
     });
 
     // ================================================================
-    // MODAL DE EDICIÓN
+    // MODAL DE EDICIÓN (genérico)
     // ================================================================
     let registroEditando = null;
 
@@ -738,68 +791,83 @@
 
       let html = '';
       if (tipo === 'producto') {
-        // MODIFICADO: Agregar campo categoria al modal de edición
         html = `
           <div class="grid-2">
             <div><label>Nombre</label><input id="editProdNombre" value="${datos.nombre || ''}" /></div>
-            <div>
-              <label>Categoría</label>
+            <div><label>Categoría</label>
               <select id="editProdCategoria">
                 <option value="">Seleccionar</option>
                 <option value="carniceria" ${datos.categoria === 'carniceria' ? 'selected' : ''}>Carnicería</option>
                 <option value="pescaderia" ${datos.categoria === 'pescaderia' ? 'selected' : ''}>Pescadería</option>
                 <option value="verduleria" ${datos.categoria === 'verduleria' ? 'selected' : ''}>Verdulería</option>
                 <option value="almacen" ${datos.categoria === 'almacen' ? 'selected' : ''}>Almacén</option>
-                <option value="frescos_y_lacteos" ${datos.categoria === 'frescos_y_lacteos' ? 'selected' : ''}>Frescos y Lácteos</option>
+                <option value="frescos y lacteos" ${datos.categoria === 'frescos y lacteos' ? 'selected' : ''}>Frescos y lácteos</option>
                 <option value="bebidas" ${datos.categoria === 'bebidas' ? 'selected' : ''}>Bebidas</option>
+                <option value="otro" ${datos.categoria === 'otro' ? 'selected' : ''}>Otro</option>
               </select>
             </div>
-            <div><label>Fecha</label><input id="editProdFecha" type="date" value="${datos.fecha || ''}" /></div>
-            <div><label>Responsable</label><input id="editProdResponsable" value="${datos.responsable || ''}" /></div>
-            <div><label>Peso bruto (g)</label><input id="editProdBruto" type="number" step="any" value="${datos.peso_bruto || 0}" /></div>
-            <div><label>Peso limpio (g)</label><input id="editProdLimpio" type="number" step="any" value="${datos.peso_limpio || 0}" /></div>
-            <div><label>Reutilizable (g)</label><input id="editProdReutilizable" type="number" step="any" value="${datos.reutilizable || 0}" /></div>
-            <div><label>Precio por kg ($)</label><input id="editProdPrecio" type="number" step="0.01" value="${datos.precio_actual || 0}" /></div>
-            <div><label>Observaciones</label><textarea id="editProdObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
+            <div><label>Unidad base</label>
+              <select id="editProdUnidad">
+                <option value="kg" ${datos.unidad_base === 'kg' ? 'selected' : ''}>kg</option>
+                <option value="g" ${datos.unidad_base === 'g' ? 'selected' : ''}>g</option>
+                <option value="litro" ${datos.unidad_base === 'litro' ? 'selected' : ''}>litro</option>
+                <option value="unidad" ${datos.unidad_base === 'unidad' ? 'selected' : ''}>unidad</option>
+              </select>
+            </div>
           </div>
         `;
-      } else if (tipo === 'coccion') {
+      } else if (tipo === 'rendCrudo') {
         html = `
           <div class="grid-2">
-            <div><label>Fecha</label><input id="editCoccionFecha" type="date" value="${datos.fecha || ''}" /></div>
-            <div><label>Producto base</label>
-              <select id="editCoccionProducto">
+            <div><label>Producto</label>
+              <select id="editRendCrudoProducto">
                 ${productosCache.map(p =>
                   `<option value="${p.id}" ${p.id === datos.producto_id ? 'selected' : ''}>${p.nombre}</option>`
                 ).join('')}
               </select>
             </div>
-            <div><label>Responsable</label><input id="editCoccionResponsable" value="${datos.responsable || ''}" /></div>
-            <div><label>Peso inicial (g)</label><input id="editCoccionInicial" type="number" step="any" value="${datos.peso_inicial || 0}" /></div>
-            <div><label>Peso final (g)</label><input id="editCoccionFinal" type="number" step="any" value="${datos.peso_final || 0}" /></div>
-            <div><label>Observaciones</label><textarea id="editCoccionObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
+            <div><label>Fecha</label><input id="editRendCrudoFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Responsable</label><input id="editRendCrudoResponsable" value="${datos.responsable || ''}" /></div>
+            <div><label>Peso bruto (g)</label><input id="editRendCrudoBruto" type="number" step="any" value="${datos.peso_bruto || 0}" /></div>
+            <div><label>Peso limpio (g)</label><input id="editRendCrudoLimpio" type="number" step="any" value="${datos.peso_limpio || 0}" /></div>
+            <div><label>Observaciones</label><textarea id="editRendCrudoObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
+          </div>
+        `;
+      } else if (tipo === 'rendCoccion') {
+        html = `
+          <div class="grid-2">
+            <div><label>Producto</label>
+              <select id="editRendCoccionProducto">
+                ${productosCache.map(p =>
+                  `<option value="${p.id}" ${p.id === datos.producto_id ? 'selected' : ''}>${p.nombre}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div><label>Fecha</label><input id="editRendCoccionFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Responsable</label><input id="editRendCoccionResponsable" value="${datos.responsable || ''}" /></div>
+            <div><label>Peso inicial (g)</label><input id="editRendCoccionInicial" type="number" step="any" value="${datos.peso_inicial || 0}" /></div>
+            <div><label>Peso final (g)</label><input id="editRendCoccionFinal" type="number" step="any" value="${datos.peso_final || 0}" /></div>
+            <div><label>Observaciones</label><textarea id="editRendCoccionObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
+          </div>
+        `;
+      } else if (tipo === 'compra') {
+        html = `
+          <div class="grid-2">
+            <div><label>Fecha</label><input id="editCompraFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Proveedor</label><input id="editCompraProveedor" value="${datos.proveedor || ''}" /></div>
+            <div><label>Producto</label>
+              <select id="editCompraProducto">
+                ${productosCache.map(p =>
+                  `<option value="${p.id}" ${p.id === datos.producto_id ? 'selected' : ''}>${p.nombre}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div><label>Cantidad (kg)</label><input id="editCompraCantidad" type="number" step="any" value="${datos.cantidad || 0}" /></div>
+            <div><label>Precio total ($)</label><input id="editCompraPrecioTotal" type="number" step="any" value="${datos.precio_total || 0}" /></div>
           </div>
         `;
       } else if (tipo === 'receta') {
-        let productosHTML = '';
-        if (datos.productos && datos.productos.length > 0) {
-          productosHTML = datos.productos.map((p, idx) => `
-            <tr>
-              <td>
-                <select class="edit-receta-prod-select" data-idx="${idx}">
-                  ${productosCache.map(prod =>
-                    `<option value="${prod.id}" ${prod.id === p.producto_id ? 'selected' : ''}>${prod.nombre}</option>`
-                  ).join('')}
-                </select>
-              </td>
-              <td><input type="number" step="any" class="edit-receta-cantidad" data-idx="${idx}" value="${p.cantidad_g || 0}" /></td>
-              <td><button class="btn-danger edit-receta-remove" data-idx="${idx}">✕</button></td>
-            </tr>
-          `).join('');
-        } else {
-          productosHTML = '<tr><td colspan="3" style="color:#666;text-align:center;">Sin productos</td></tr>';
-        }
-
+        // Para recetas, solo permitimos editar campos generales (no productos/subrecetas por simplicidad)
         html = `
           <div class="grid-2">
             <div><label>Título</label><input id="editRecetaTitulo" value="${datos.titulo || ''}" /></div>
@@ -815,72 +883,14 @@
             <div><label>Responsable</label><input id="editRecetaResponsable" value="${datos.responsable || ''}" /></div>
           </div>
           <div style="margin-top:1rem;">
-            <label>Observaciones generales</label>
+            <label>Observaciones</label>
             <textarea id="editRecetaObservaciones" rows="2">${datos.observaciones || ''}</textarea>
           </div>
-          <h4 style="margin-top:1.5rem;">Productos incluidos</h4>
-          <div class="tabla-scroll">
-            <table>
-              <thead><tr><th>Producto</th><th>Cantidad (g)</th><th></th></tr></thead>
-              <tbody id="editRecetaProductosBody">${productosHTML}</tbody>
-            </table>
-          </div>
-          <button id="editRecetaAgregarProducto" class="btn-sec" style="margin-top:0.5rem;">➕ Agregar producto</button>
+          <p style="color:#999;font-size:0.9rem;">Para editar productos o subrecetas, crea una nueva versión de la receta.</p>
         `;
       }
       body.innerHTML = html;
       modal.style.display = 'flex';
-
-      if (tipo === 'receta') {
-        document.getElementById('editRecetaAgregarProducto')?.addEventListener('click', () => {
-          const tbody = document.getElementById('editRecetaProductosBody');
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>
-              <select class="edit-receta-prod-select" data-idx="${tbody.children.length}">
-                ${productosCache.map(p =>
-                  `<option value="${p.id}">${p.nombre}</option>`
-                ).join('')}
-              </select>
-            </td>
-            <td><input type="number" step="any" class="edit-receta-cantidad" data-idx="${tbody.children.length}" value="0" /></td>
-            <td><button class="btn-danger edit-receta-remove" data-idx="${tbody.children.length}">✕</button></td>
-          `;
-          tbody.appendChild(row);
-          document.querySelectorAll('.edit-receta-remove').forEach(btn => {
-            btn.addEventListener('click', function() {
-              const idx = parseInt(this.dataset.idx);
-              const tbody = document.getElementById('editRecetaProductosBody');
-              if (tbody.children.length > 1) {
-                tbody.removeChild(tbody.children[idx]);
-                Array.from(tbody.children).forEach((tr, i) => {
-                  tr.querySelector('.edit-receta-prod-select').dataset.idx = i;
-                  tr.querySelector('.edit-receta-cantidad').dataset.idx = i;
-                  tr.querySelector('.edit-receta-remove').dataset.idx = i;
-                });
-              } else {
-                alert('Debe quedar al menos un producto.');
-              }
-            });
-          });
-        });
-        document.querySelectorAll('.edit-receta-remove').forEach(btn => {
-          btn.addEventListener('click', function() {
-            const idx = parseInt(this.dataset.idx);
-            const tbody = document.getElementById('editRecetaProductosBody');
-            if (tbody.children.length > 1) {
-              tbody.removeChild(tbody.children[idx]);
-              Array.from(tbody.children).forEach((tr, i) => {
-                tr.querySelector('.edit-receta-prod-select').dataset.idx = i;
-                tr.querySelector('.edit-receta-cantidad').dataset.idx = i;
-                tr.querySelector('.edit-receta-remove').dataset.idx = i;
-              });
-            } else {
-              alert('Debe quedar al menos un producto.');
-            }
-          });
-        });
-      }
     }
 
     document.getElementById('modalCancelar').addEventListener('click', () => {
@@ -898,61 +908,83 @@
         if (tipo === 'producto') {
           const nombre = document.getElementById('editProdNombre').value.trim();
           const categoria = document.getElementById('editProdCategoria').value;
-          const bruto = parseFloat(document.getElementById('editProdBruto').value) || 0;
-          const limpio = parseFloat(document.getElementById('editProdLimpio').value) || 0;
-          const reutilizable = parseFloat(document.getElementById('editProdReutilizable').value) || 0;
-          const precio = parseFloat(document.getElementById('editProdPrecio').value) || 0;
-          const fecha = document.getElementById('editProdFecha').value;
-          const responsable = document.getElementById('editProdResponsable').value.trim();
-          const observaciones = document.getElementById('editProdObservaciones').value.trim();
-          if (!nombre || bruto <= 0 || limpio <= 0) {
-            logMsg(logId, '❌ Nombre, peso bruto y peso limpio son obligatorios.', 'error');
+          const unidad = document.getElementById('editProdUnidad').value;
+          if (!nombre) {
+            logMsg(logId, '❌ Nombre requerido.', 'error');
+            return;
+          }
+          datosActualizados = { nombre, categoria, unidad_base: unidad };
+        } else if (tipo === 'rendCrudo') {
+          const productoId = document.getElementById('editRendCrudoProducto').value;
+          const fecha = document.getElementById('editRendCrudoFecha').value;
+          const responsable = document.getElementById('editRendCrudoResponsable').value.trim();
+          const bruto = parseFloat(document.getElementById('editRendCrudoBruto').value) || 0;
+          const limpio = parseFloat(document.getElementById('editRendCrudoLimpio').value) || 0;
+          const observaciones = document.getElementById('editRendCrudoObservaciones').value.trim();
+          if (!productoId || bruto <= 0 || limpio <= 0) {
+            logMsg(logId, '❌ Producto, peso bruto y limpio obligatorios.', 'error');
             return;
           }
           const desperdicio = bruto - limpio;
           const factor = bruto / limpio;
           datosActualizados = {
-            nombre,
-            categoria,
+            producto_id: productoId,
+            fecha,
+            responsable,
             peso_bruto: bruto,
             peso_limpio: limpio,
             desperdicio,
-            reutilizable,
-            precio_actual: precio,
             factor_desperdicio: factor,
-            fecha,
-            responsable,
             observaciones
           };
-        } else if (tipo === 'coccion') {
-          const productoId = document.getElementById('editCoccionProducto').value;
-          const inicial = parseFloat(document.getElementById('editCoccionInicial').value) || 0;
-          const final = parseFloat(document.getElementById('editCoccionFinal').value) || 0;
-          const fecha = document.getElementById('editCoccionFecha').value;
-          const responsable = document.getElementById('editCoccionResponsable').value.trim();
-          const observaciones = document.getElementById('editCoccionObservaciones').value.trim();
+        } else if (tipo === 'rendCoccion') {
+          const productoId = document.getElementById('editRendCoccionProducto').value;
+          const fecha = document.getElementById('editRendCoccionFecha').value;
+          const responsable = document.getElementById('editRendCoccionResponsable').value.trim();
+          const inicial = parseFloat(document.getElementById('editRendCoccionInicial').value) || 0;
+          const final = parseFloat(document.getElementById('editRendCoccionFinal').value) || 0;
+          const observaciones = document.getElementById('editRendCoccionObservaciones').value.trim();
           if (!productoId || inicial <= 0 || final <= 0) {
-            logMsg(logId, '❌ Producto, peso inicial y final son obligatorios.', 'error');
+            logMsg(logId, '❌ Producto, peso inicial y final obligatorios.', 'error');
             return;
           }
           const prod = productosCache.find(p => p.id === productoId);
-          const factorDesp = prod ? prod.factor_desperdicio : 1;
+          const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
           const factorCoc = inicial / final;
           const factorTotal = factorDesp * factorCoc;
-          const rendimientoPorcentaje = (final / inicial) * 100;
+          const rendPorcentaje = (final / inicial) * 100;
           const merma = Math.max(0, inicial - final);
           datosActualizados = {
             producto_id: productoId,
+            fecha,
+            responsable,
             peso_inicial: inicial,
             peso_final: final,
             merma,
             factor_desperdicio: factorDesp,
             factor_coccion: factorCoc,
             factor_total: factorTotal,
-            rendimiento_porcentaje: rendimientoPorcentaje,
-            fecha,
-            responsable,
+            rendimiento_porcentaje: rendPorcentaje,
             observaciones
+          };
+        } else if (tipo === 'compra') {
+          const fecha = document.getElementById('editCompraFecha').value;
+          const proveedor = document.getElementById('editCompraProveedor').value.trim();
+          const productoId = document.getElementById('editCompraProducto').value;
+          const cantidad = parseFloat(document.getElementById('editCompraCantidad').value) || 0;
+          const precioTotal = parseFloat(document.getElementById('editCompraPrecioTotal').value) || 0;
+          if (!fecha || !proveedor || !productoId || cantidad <= 0 || precioTotal <= 0) {
+            logMsg(logId, '❌ Todos los campos son obligatorios.', 'error');
+            return;
+          }
+          const precioKg = precioTotal / cantidad;
+          datosActualizados = {
+            fecha,
+            proveedor,
+            producto_id: productoId,
+            cantidad,
+            precio_total: precioTotal,
+            precio_kg: precioKg
           };
         } else if (tipo === 'receta') {
           const titulo = document.getElementById('editRecetaTitulo').value.trim();
@@ -964,68 +996,7 @@
             logMsg(logId, '❌ Título requerido.', 'error');
             return;
           }
-          const rows = document.querySelectorAll('#editRecetaProductosBody tr');
-          const productosEdit = [];
-          let pesoTotal = 0;
-          rows.forEach(row => {
-            const sel = row.querySelector('.edit-receta-prod-select');
-            const cant = row.querySelector('.edit-receta-cantidad');
-            if (sel && cant) {
-              const prodId = sel.value;
-              const cantidad = parseFloat(cant.value) || 0;
-              if (prodId && cantidad > 0) {
-                const prod = productosCache.find(p => p.id === prodId);
-                if (prod) {
-                  const factorDesp = prod.factor_desperdicio || 1;
-                  const factorCoc = obtenerUltimoFactorCoccion(prodId) || 1;
-                  const factorTotal = factorDesp * factorCoc;
-                  const precio = prod.precio_actual || 0;
-                  const costo = (cantidad / 1000) * precio * factorTotal;
-                  productosEdit.push({
-                    producto_id: prodId,
-                    cantidad_g: cantidad,
-                    factor_desperdicio: factorDesp,
-                    factor_coccion: factorCoc,
-                    factor_total: factorTotal,
-                    precio_unitario: precio,
-                    costo
-                  });
-                  pesoTotal += cantidad;
-                }
-              }
-            }
-          });
-          if (productosEdit.length === 0) {
-            logMsg(logId, '❌ Agregá al menos un producto con cantidad > 0.', 'error');
-            return;
-          }
-          const costoTotal = productosEdit.reduce((sum, p) => sum + p.costo, 0);
-          const margen = costoTotal * 0.05;
-          const costoFinal = costoTotal + margen;
-          const porcionGramos = parseFloat(document.getElementById('editRecetaPorcionGramos')?.value) || 0;
-          const numPorciones = parseFloat(document.getElementById('editRecetaNumPorciones')?.value) || 0;
-          let porcionGramosFinal = porcionGramos;
-          let numPorcionesFinal = numPorciones;
-          if (porcionGramos > 0 && numPorciones === 0) {
-            numPorcionesFinal = Math.round(pesoTotal / porcionGramos);
-          } else if (numPorciones > 0 && porcionGramos === 0) {
-            porcionGramosFinal = pesoTotal / numPorciones;
-          }
-          datosActualizados = {
-            titulo,
-            fecha,
-            tipo_plato: tipoPlato,
-            responsable,
-            observaciones,
-            productos: productosEdit,
-            peso_total_g: pesoTotal,
-            costo_total_ingredientes: costoTotal,
-            margen_error: 5,
-            costo_final: costoFinal,
-            porcion_gramos: porcionGramosFinal,
-            numero_porciones: numPorcionesFinal,
-            costo_por_porcion: numPorcionesFinal > 0 ? costoFinal / numPorcionesFinal : 0
-          };
+          datosActualizados = { titulo, fecha, tipo_plato: tipoPlato, responsable, observaciones };
         }
 
         await db.collection(coleccion).doc(id).update(datosActualizados);
@@ -1045,94 +1016,76 @@
     // FUNCIONES DE RECARGA GLOBAL
     // ================================================================
     async function recargarTodo() {
-      await cargarSelectsProductos();
+      await cargarProductos();
+      await cargarRendimientosCrudo();
       await cargarRendimientosCoccion();
       await cargarCompras();
       cargarListaProductos();
-      cargarListaRendimientos();
+      cargarListaRendCrudo();
+      cargarListaRendCoccion();
+      cargarListaCompras();
       cargarHistorial();
-      cargarSelectoresCalculadora();
-      cargarSelectoresCompras();
+      cargarSelectores();
       actualizarPreciosDesdeCompras();
     }
 
     // ================================================================
-    // 1. PRODUCTOS (con campo categoría)
+    // 1. PRODUCTOS (catálogo)
     // ================================================================
-    function calcularDesperdicioAutomatico() {
-      const bruto = parseFloat(document.getElementById('prodBruto').value) || 0;
-      const limpio = parseFloat(document.getElementById('prodLimpio').value) || 0;
-      if (bruto > 0 && limpio > 0 && limpio <= bruto) {
-        document.getElementById('prodDesperdicio').value = (bruto - limpio).toFixed(2);
-      } else if (bruto > 0 && limpio > 0 && limpio > bruto) {
-        document.getElementById('prodDesperdicio').value = '0';
-      } else {
-        document.getElementById('prodDesperdicio').value = '';
+    let productosCache = [];
+
+    async function cargarProductos() {
+      try {
+        const snap = await db.collection('productos').orderBy('nombre').get();
+        productosCache = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          productosCache.push({ id: doc.id, ...data });
+        });
+        cargarSelectores();
+      } catch (e) {
+        console.error('Error cargando productos:', e);
       }
     }
 
-    function calcularFactoresProducto() {
-      const bruto = parseFloat(document.getElementById('prodBruto').value) || 0;
-      const limpio = parseFloat(document.getElementById('prodLimpio').value) || 0;
-      const precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
-      if (limpio > 0 && bruto > 0) {
-        const factor = bruto / limpio;
-        const merma = (1 - limpio / bruto) * 100;
-        const costoReal = precio * factor;
-        document.getElementById('factorDesperdicio').textContent = factor.toFixed(2);
-        document.getElementById('mermaPorcentaje').textContent = merma.toFixed(2) + '%';
-        document.getElementById('costoRealKg').textContent = '$' + costoReal.toFixed(2);
-      } else {
-        document.getElementById('factorDesperdicio').textContent = '—';
-        document.getElementById('mermaPorcentaje').textContent = '—';
-        document.getElementById('costoRealKg').textContent = '—';
-      }
+    function cargarSelectores() {
+      const selects = ['rendCrudoProducto', 'rendCoccionProducto', 'compraProducto', 'calcProducto'];
+      selects.forEach(id => {
+        const sel = document.getElementById(id);
+        if (!sel) return;
+        const currentVal = sel.value;
+        sel.innerHTML = '<option value="">Seleccionar</option>';
+        productosCache.forEach(p => {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.textContent = p.nombre;
+          if (p.id === currentVal) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      });
     }
-
-    document.getElementById('prodBruto').addEventListener('input', () => {
-      calcularDesperdicioAutomatico();
-      calcularFactoresProducto();
-    });
-    document.getElementById('prodLimpio').addEventListener('input', () => {
-      calcularDesperdicioAutomatico();
-      calcularFactoresProducto();
-    });
 
     document.getElementById('guardarProducto').addEventListener('click', async () => {
       const logId = 'logProductos';
       logMsg(logId, '🔄 Guardando producto...');
       const nombre = document.getElementById('prodNombre').value.trim();
       const categoria = document.getElementById('prodCategoria').value;
-      const bruto = parseFloat(document.getElementById('prodBruto').value) || 0;
-      const limpio = parseFloat(document.getElementById('prodLimpio').value) || 0;
-      const reutilizable = parseFloat(document.getElementById('prodReutilizable').value) || 0;
-      const precio = parseFloat(document.getElementById('prodPrecio').value) || 0;
-      const fecha = document.getElementById('prodFecha').value;
-      const responsable = document.getElementById('prodResponsable').value.trim();
-      const observaciones = document.getElementById('prodObservaciones').value.trim();
-      if (!nombre || bruto <= 0 || limpio <= 0) {
-        logMsg(logId, '❌ Nombre, peso bruto y peso limpio son obligatorios.', 'error');
+      const unidad = document.getElementById('prodUnidad').value;
+      if (!nombre || !categoria) {
+        logMsg(logId, '❌ Nombre y categoría son obligatorios.', 'error');
         return;
       }
-      const desperdicio = bruto - limpio;
-      const factor = bruto / limpio;
       try {
         await db.collection('productos').add({
           nombre,
           categoria,
-          peso_bruto: bruto,
-          peso_limpio: limpio,
-          desperdicio,
-          reutilizable,
-          precio_actual: precio,
-          factor_desperdicio: factor,
-          fecha,
-          responsable,
-          observaciones,
+          unidad_base: unidad,
+          precio_actual: 0,
           created_at: new Date()
         });
         logMsg(logId, '✅ Producto guardado.', 'exito');
-        limpiarCamposProducto();
+        document.getElementById('prodNombre').value = '';
+        document.getElementById('prodCategoria').value = '';
         recargarTodo();
       } catch (e) {
         logMsg(logId, '❌ Error: ' + e.message, 'error');
@@ -1141,22 +1094,283 @@
     });
 
     document.getElementById('limpiarProducto').addEventListener('click', () => {
-      limpiarCamposProducto();
+      document.getElementById('prodNombre').value = '';
+      document.getElementById('prodCategoria').value = '';
       logMsg('logProductos', '🧹 Campos limpiados.', 'info');
     });
 
-    function limpiarCamposProducto() {
-      document.getElementById('prodNombre').value = '';
-      document.getElementById('prodCategoria').value = '';
-      document.getElementById('prodBruto').value = '';
-      document.getElementById('prodLimpio').value = '';
-      document.getElementById('prodReutilizable').value = '';
-      document.getElementById('prodPrecio').value = '';
-      document.getElementById('prodFecha').value = new Date().toISOString().split('T')[0];
-      document.getElementById('prodResponsable').value = '';
-      document.getElementById('prodObservaciones').value = '';
-      document.getElementById('prodDesperdicio').value = '';
-      calcularFactoresProducto();
+    // ================================================================
+    // 2. RENDIMIENTO EN CRUDO
+    // ================================================================
+    let rendCrudoCache = [];
+
+    async function cargarRendimientosCrudo() {
+      try {
+        const snap = await db.collection('rendimientos_crudos').orderBy('created_at', 'desc').get();
+        rendCrudoCache = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          rendCrudoCache.push({ id: doc.id, ...data });
+        });
+      } catch (e) {
+        console.error('Error cargando rendimientos crudo:', e);
+      }
+    }
+
+    function calcularRendCrudo() {
+      const bruto = parseFloat(document.getElementById('rendCrudoBruto').value) || 0;
+      const limpio = parseFloat(document.getElementById('rendCrudoLimpio').value) || 0;
+      if (bruto > 0 && limpio > 0) {
+        const desperdicio = Math.max(0, bruto - limpio);
+        const factor = bruto / limpio;
+        const merma = (1 - limpio / bruto) * 100;
+        document.getElementById('rendCrudoDesperdicio').value = desperdicio.toFixed(2);
+        document.getElementById('rendCrudoFactor').textContent = factor.toFixed(4);
+        document.getElementById('rendCrudoMerma').textContent = merma.toFixed(2) + '%';
+      } else {
+        document.getElementById('rendCrudoDesperdicio').value = '';
+        document.getElementById('rendCrudoFactor').textContent = '—';
+        document.getElementById('rendCrudoMerma').textContent = '—';
+      }
+    }
+
+    document.getElementById('rendCrudoBruto').addEventListener('input', calcularRendCrudo);
+    document.getElementById('rendCrudoLimpio').addEventListener('input', calcularRendCrudo);
+
+    document.getElementById('guardarRendCrudo').addEventListener('click', async () => {
+      const logId = 'logRendCrudo';
+      logMsg(logId, '🔄 Guardando rendimiento en crudo...');
+      const productoId = document.getElementById('rendCrudoProducto').value;
+      const fecha = document.getElementById('rendCrudoFecha').value;
+      const responsable = document.getElementById('rendCrudoResponsable').value.trim();
+      const bruto = parseFloat(document.getElementById('rendCrudoBruto').value) || 0;
+      const limpio = parseFloat(document.getElementById('rendCrudoLimpio').value) || 0;
+      const observaciones = document.getElementById('rendCrudoObservaciones').value.trim();
+      if (!productoId || bruto <= 0 || limpio <= 0) {
+        logMsg(logId, '❌ Producto, peso bruto y limpio son obligatorios.', 'error');
+        return;
+      }
+      const desperdicio = bruto - limpio;
+      const factor = bruto / limpio;
+      try {
+        await db.collection('rendimientos_crudos').add({
+          producto_id: productoId,
+          fecha,
+          responsable,
+          peso_bruto: bruto,
+          peso_limpio: limpio,
+          desperdicio,
+          factor_desperdicio: factor,
+          observaciones,
+          created_at: new Date()
+        });
+        logMsg(logId, '✅ Rendimiento guardado.', 'exito');
+        limpiarRendCrudo();
+        recargarTodo();
+      } catch (e) {
+        logMsg(logId, '❌ Error: ' + e.message, 'error');
+        console.error(e);
+      }
+    });
+
+    document.getElementById('limpiarRendCrudo').addEventListener('click', () => {
+      limpiarRendCrudo();
+      logMsg('logRendCrudo', '🧹 Campos limpiados.', 'info');
+    });
+
+    function limpiarRendCrudo() {
+      document.getElementById('rendCrudoProducto').value = '';
+      document.getElementById('rendCrudoFecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('rendCrudoResponsable').value = '';
+      document.getElementById('rendCrudoBruto').value = '';
+      document.getElementById('rendCrudoLimpio').value = '';
+      document.getElementById('rendCrudoObservaciones').value = '';
+      document.getElementById('rendCrudoDesperdicio').value = '';
+      calcularRendCrudo();
+    }
+
+    // ================================================================
+    // 3. RENDIMIENTO POR COCCIÓN
+    // ================================================================
+    let rendCoccionCache = [];
+
+    async function cargarRendimientosCoccion() {
+      try {
+        const snap = await db.collection('rendimientos_coccion').orderBy('created_at', 'desc').get();
+        rendCoccionCache = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          rendCoccionCache.push({ id: doc.id, ...data });
+        });
+      } catch (e) {
+        console.error('Error cargando rendimientos cocción:', e);
+      }
+    }
+
+    function calcularRendCoccion() {
+      const inicial = parseFloat(document.getElementById('rendCoccionInicial').value) || 0;
+      const final = parseFloat(document.getElementById('rendCoccionFinal').value) || 0;
+      if (inicial > 0 && final > 0) {
+        const factor = inicial / final;
+        const rendPorcentaje = (final / inicial) * 100;
+        const merma = Math.max(0, inicial - final);
+        document.getElementById('rendCoccionMerma').value = merma.toFixed(2);
+        document.getElementById('rendCoccionFactor').textContent = factor.toFixed(4);
+        document.getElementById('rendCoccionPorcentaje').textContent = rendPorcentaje.toFixed(2) + '%';
+        // Factor total (se necesita el factor desperdicio del producto)
+        const prodId = document.getElementById('rendCoccionProducto').value;
+        const prod = productosCache.find(p => p.id === prodId);
+        const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
+        const total = factorDesp * factor;
+        document.getElementById('rendCoccionTotal').textContent = total.toFixed(4);
+      } else {
+        document.getElementById('rendCoccionMerma').value = '';
+        document.getElementById('rendCoccionFactor').textContent = '—';
+        document.getElementById('rendCoccionPorcentaje').textContent = '—';
+        document.getElementById('rendCoccionTotal').textContent = '—';
+      }
+    }
+
+    document.getElementById('rendCoccionInicial').addEventListener('input', calcularRendCoccion);
+    document.getElementById('rendCoccionFinal').addEventListener('input', calcularRendCoccion);
+    document.getElementById('rendCoccionProducto').addEventListener('change', calcularRendCoccion);
+
+    document.getElementById('guardarRendCoccion').addEventListener('click', async () => {
+      const logId = 'logRendCoccion';
+      logMsg(logId, '🔄 Guardando rendimiento por cocción...');
+      const productoId = document.getElementById('rendCoccionProducto').value;
+      const fecha = document.getElementById('rendCoccionFecha').value;
+      const responsable = document.getElementById('rendCoccionResponsable').value.trim();
+      const inicial = parseFloat(document.getElementById('rendCoccionInicial').value) || 0;
+      const final = parseFloat(document.getElementById('rendCoccionFinal').value) || 0;
+      const observaciones = document.getElementById('rendCoccionObservaciones').value.trim();
+      if (!productoId || inicial <= 0 || final <= 0) {
+        logMsg(logId, '❌ Producto, peso inicial y final son obligatorios.', 'error');
+        return;
+      }
+      const prod = productosCache.find(p => p.id === productoId);
+      const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
+      const factorCoc = inicial / final;
+      const factorTotal = factorDesp * factorCoc;
+      const rendPorcentaje = (final / inicial) * 100;
+      const merma = Math.max(0, inicial - final);
+      try {
+        await db.collection('rendimientos_coccion').add({
+          producto_id: productoId,
+          fecha,
+          responsable,
+          peso_inicial: inicial,
+          peso_final: final,
+          merma,
+          factor_desperdicio: factorDesp,
+          factor_coccion: factorCoc,
+          factor_total: factorTotal,
+          rendimiento_porcentaje: rendPorcentaje,
+          observaciones,
+          created_at: new Date()
+        });
+        logMsg(logId, '✅ Rendimiento guardado.', 'exito');
+        limpiarRendCoccion();
+        recargarTodo();
+      } catch (e) {
+        logMsg(logId, '❌ Error: ' + e.message, 'error');
+        console.error(e);
+      }
+    });
+
+    document.getElementById('limpiarRendCoccion').addEventListener('click', () => {
+      limpiarRendCoccion();
+      logMsg('logRendCoccion', '🧹 Campos limpiados.', 'info');
+    });
+
+    function limpiarRendCoccion() {
+      document.getElementById('rendCoccionProducto').value = '';
+      document.getElementById('rendCoccionFecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('rendCoccionResponsable').value = '';
+      document.getElementById('rendCoccionInicial').value = '';
+      document.getElementById('rendCoccionFinal').value = '';
+      document.getElementById('rendCoccionObservaciones').value = '';
+      document.getElementById('rendCoccionMerma').value = '';
+      calcularRendCoccion();
+    }
+
+    // ================================================================
+    // 4. COMPRAS
+    // ================================================================
+    let comprasCache = [];
+
+    async function cargarCompras() {
+      try {
+        const snap = await db.collection('compras').orderBy('fecha', 'desc').get();
+        comprasCache = [];
+        snap.forEach(doc => {
+          const data = doc.data();
+          comprasCache.push({ id: doc.id, ...data });
+        });
+      } catch (e) {
+        console.error('Error cargando compras:', e);
+      }
+    }
+
+    function calcularPrecioKg() {
+      const cantidad = parseFloat(document.getElementById('compraCantidad').value) || 0;
+      const total = parseFloat(document.getElementById('compraPrecioTotal').value) || 0;
+      if (cantidad > 0 && total > 0) {
+        document.getElementById('compraPrecioKg').value = (total / cantidad).toFixed(2);
+      } else {
+        document.getElementById('compraPrecioKg').value = '';
+      }
+    }
+
+    document.getElementById('compraCantidad').addEventListener('input', calcularPrecioKg);
+    document.getElementById('compraPrecioTotal').addEventListener('input', calcularPrecioKg);
+
+    document.getElementById('guardarCompra').addEventListener('click', async () => {
+      const logId = 'logCompras';
+      logMsg(logId, '🔄 Guardando compra...');
+      const fecha = document.getElementById('compraFecha').value;
+      const proveedor = document.getElementById('compraProveedor').value.trim();
+      const productoId = document.getElementById('compraProducto').value;
+      const cantidad = parseFloat(document.getElementById('compraCantidad').value) || 0;
+      const precioTotal = parseFloat(document.getElementById('compraPrecioTotal').value) || 0;
+      if (!fecha || !proveedor || !productoId || cantidad <= 0 || precioTotal <= 0) {
+        logMsg(logId, '❌ Todos los campos son obligatorios.', 'error');
+        return;
+      }
+      const precioKg = precioTotal / cantidad;
+      try {
+        await db.collection('compras').add({
+          fecha,
+          proveedor,
+          producto_id: productoId,
+          cantidad,
+          precio_total: precioTotal,
+          precio_kg: precioKg,
+          created_at: new Date()
+        });
+        logMsg(logId, '✅ Compra guardada.', 'exito');
+        // Actualizar precio del producto
+        await actualizarPreciosDesdeCompras();
+        limpiarCompra();
+        recargarTodo();
+      } catch (e) {
+        logMsg(logId, '❌ Error: ' + e.message, 'error');
+        console.error(e);
+      }
+    });
+
+    document.getElementById('limpiarCompra').addEventListener('click', () => {
+      limpiarCompra();
+      logMsg('logCompras', '🧹 Campos limpiados.', 'info');
+    });
+
+    function limpiarCompra() {
+      document.getElementById('compraFecha').value = new Date().toISOString().split('T')[0];
+      document.getElementById('compraProveedor').value = '';
+      document.getElementById('compraProducto').value = '';
+      document.getElementById('compraCantidad').value = '';
+      document.getElementById('compraPrecioTotal').value = '';
+      document.getElementById('compraPrecioKg').value = '';
     }
 
     // ================================================================
@@ -1165,291 +1379,211 @@
     async function actualizarPreciosDesdeCompras() {
       try {
         const snap = await db.collection('compras').orderBy('fecha', 'desc').get();
-        const preciosPorProducto = {};
+        const precios = {};
         snap.forEach(doc => {
           const data = doc.data();
           const prodId = data.producto_id;
-          if (prodId && !preciosPorProducto[prodId]) {
-            preciosPorProducto[prodId] = data.precio_kg;
+          if (prodId && !precios[prodId]) {
+            precios[prodId] = data.precio_kg;
           }
         });
-        for (const [prodId, precio] of Object.entries(preciosPorProducto)) {
+        for (const [prodId, precio] of Object.entries(precios)) {
           await db.collection('productos').doc(prodId).update({ precio_actual: precio });
         }
-        await cargarSelectsProductos();
+        // Actualizar cache local
+        await cargarProductos();
+        // Refrescar listados
         cargarListaProductos();
-        // Actualizar el precio mostrado en el formulario de producto (si está seleccionado uno)
-        // No hay un selector de producto en la pestaña de productos, solo se muestra al cargar la lista.
       } catch (e) {
         console.error('Error actualizando precios desde compras:', e);
       }
     }
 
     // ================================================================
-    // 2. RENDIMIENTO POR COCCIÓN
-    // ================================================================
-    let productosCache = [];
-    let rendimientosCache = [];
-
-    async function cargarSelectsProductos() {
-      try {
-        const snap = await db.collection('productos').orderBy('nombre').get();
-        productosCache = [];
-        snap.forEach(doc => {
-          const data = doc.data();
-          productosCache.push({ id: doc.id, ...data });
-        });
-        const sel = document.getElementById('coccionProducto');
-        sel.innerHTML = '<option value="">Seleccionar</option>';
-        productosCache.forEach(p => {
-          const opt = document.createElement('option');
-          opt.value = p.id;
-          opt.dataset.factor = p.factor_desperdicio || 1;
-          opt.textContent = p.nombre + ' (factor ' + (p.factor_desperdicio || 1).toFixed(2) + ')';
-          sel.appendChild(opt);
-        });
-        cargarSelectoresCalculadora();
-        cargarSelectoresCompras();
-      } catch (e) {
-        console.error('Error cargando productos:', e);
-      }
-    }
-
-    async function cargarRendimientosCoccion() {
-      try {
-        const snap = await db.collection('rendimientos_coccion').orderBy('created_at', 'desc').get();
-        rendimientosCache = [];
-        snap.forEach(doc => {
-          const data = doc.data();
-          rendimientosCache.push({ id: doc.id, ...data });
-        });
-      } catch (e) {
-        console.error('Error cargando rendimientos:', e);
-      }
-    }
-
-    function calcularFactoresCoccion() {
-      const sel = document.getElementById('coccionProducto');
-      const selected = sel.options[sel.selectedIndex];
-      const factorDesp = selected && selected.dataset.factor ? parseFloat(selected.dataset.factor) : 1;
-      const inicial = parseFloat(document.getElementById('coccionInicial').value) || 0;
-      const final = parseFloat(document.getElementById('coccionFinal').value) || 0;
-      if (inicial > 0 && final > 0) {
-        const factor = inicial / final;
-        const rendPorcentaje = (final / inicial) * 100;
-        const total = factorDesp * factor;
-        const merma = Math.max(0, inicial - final);
-        const prodId = sel.value;
-        const prod = productosCache.find(p => p.id === prodId);
-        const precioBruto = prod ? prod.precio_actual || 0 : 0;
-        const costoKgCocido = precioBruto * factor;
-
-        document.getElementById('coccionMerma').value = merma.toFixed(2);
-        document.getElementById('factorCoccion').textContent = factor.toFixed(4);
-        document.getElementById('rendimientoPorcentajeCoccion').textContent = rendPorcentaje.toFixed(2) + '%';
-        document.getElementById('factorTotalCoccion').textContent = total.toFixed(4);
-        document.getElementById('costoKgCocido').textContent = '$' + costoKgCocido.toFixed(2);
-      } else {
-        document.getElementById('coccionMerma').value = '';
-        document.getElementById('factorCoccion').textContent = '—';
-        document.getElementById('rendimientoPorcentajeCoccion').textContent = '—';
-        document.getElementById('factorTotalCoccion').textContent = '—';
-        document.getElementById('costoKgCocido').textContent = '—';
-      }
-    }
-
-    document.getElementById('coccionProducto').addEventListener('change', calcularFactoresCoccion);
-    document.getElementById('coccionInicial').addEventListener('input', calcularFactoresCoccion);
-    document.getElementById('coccionFinal').addEventListener('input', calcularFactoresCoccion);
-
-    document.getElementById('guardarCoccion').addEventListener('click', async () => {
-      const logId = 'logCoccion';
-      logMsg(logId, '🔄 Guardando rendimiento...');
-      const productoId = document.getElementById('coccionProducto').value;
-      if (!productoId) {
-        logMsg(logId, '❌ Seleccioná un producto.', 'error');
-        return;
-      }
-      const inicial = parseFloat(document.getElementById('coccionInicial').value) || 0;
-      const final = parseFloat(document.getElementById('coccionFinal').value) || 0;
-      if (inicial <= 0 || final <= 0) {
-        logMsg(logId, '❌ Pesos inicial y final deben ser > 0.', 'error');
-        return;
-      }
-      const fecha = document.getElementById('coccionFecha').value;
-      const responsable = document.getElementById('coccionResponsable').value.trim();
-      const observaciones = document.getElementById('coccionObservaciones').value.trim();
-      const sel = document.getElementById('coccionProducto');
-      const selected = sel.options[sel.selectedIndex];
-      const factorDesp = selected ? parseFloat(selected.dataset.factor) : 1;
-      const factorCoc = inicial / final;
-      const factorTotal = factorDesp * factorCoc;
-      const rendPorcentaje = (final / inicial) * 100;
-      const merma = Math.max(0, inicial - final);
-      try {
-        await db.collection('rendimientos_coccion').add({
-          producto_id: productoId,
-          peso_inicial: inicial,
-          peso_final: final,
-          merma,
-          factor_desperdicio: factorDesp,
-          factor_coccion: factorCoc,
-          factor_total: factorTotal,
-          rendimiento_porcentaje: rendPorcentaje,
-          fecha,
-          responsable,
-          observaciones,
-          created_at: new Date()
-        });
-        logMsg(logId, '✅ Rendimiento guardado.', 'exito');
-        limpiarCamposCoccion();
-        recargarTodo();
-      } catch (e) {
-        logMsg(logId, '❌ Error: ' + e.message, 'error');
-        console.error(e);
-      }
-    });
-
-    document.getElementById('limpiarCoccion').addEventListener('click', () => {
-      limpiarCamposCoccion();
-      logMsg('logCoccion', '🧹 Campos limpiados.', 'info');
-    });
-
-    function limpiarCamposCoccion() {
-      document.getElementById('coccionInicial').value = '';
-      document.getElementById('coccionFinal').value = '';
-      document.getElementById('coccionFecha').value = new Date().toISOString().split('T')[0];
-      document.getElementById('coccionResponsable').value = '';
-      document.getElementById('coccionObservaciones').value = '';
-      document.getElementById('coccionMerma').value = '';
-      document.getElementById('coccionProducto').value = '';
-      calcularFactoresCoccion();
-    }
-
-    // ================================================================
-    // 3. RECETAS
+    // 5. RECETAS (con subrecetas)
     // ================================================================
     let productosReceta = [];
-
-    function obtenerUltimoFactorCoccion(productoId) {
-      const rends = rendimientosCache.filter(r => r.producto_id === productoId);
-      return rends.length > 0 ? rends[0].factor_coccion || 1 : 1;
-    }
+    let subrecetasReceta = [];
 
     function renderProductosReceta() {
       const tbody = document.getElementById('recetaProductosBody');
       tbody.innerHTML = '';
       if (productosReceta.length === 0) {
         tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:#666;padding:0.8rem;">Agregá productos usando el botón</td></tr>';
-        actualizarResumenReceta();
-        return;
-      }
-      let pesoTotal = 0;
-      let costoTotal = 0;
-      productosReceta.forEach((item, idx) => {
-        const prod = productosCache.find(p => p.id === item.producto_id);
-        const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
-        const precio = prod ? prod.precio_actual || 0 : 0;
-        const factorCoc = item.factor_coccion || 1;
-        const factorTotal = factorDesp * factorCoc;
-        const cantidad = item.cantidad_g || 0;
-        const costo = (cantidad / 1000) * precio * factorTotal;
-        pesoTotal += cantidad;
-        costoTotal += costo;
-        item.costo = costo;
-        item.factor_desperdicio = factorDesp;
-        item.factor_coccion = factorCoc;
-        item.factor_total = factorTotal;
-        item.precio_unitario = precio;
-      });
-      // Porcentajes
-      productosReceta.forEach((item, idx) => {
-        const pctPeso = pesoTotal > 0 ? (item.cantidad_g / pesoTotal) * 100 : 0;
-        const pctCosto = costoTotal > 0 ? (item.costo / costoTotal) * 100 : 0;
-        item.pctPeso = pctPeso;
-        item.pctCosto = pctCosto;
-      });
-
-      tbody.innerHTML = '';
-      productosReceta.forEach((item, idx) => {
-        const tr = document.createElement('tr');
-        const rendPorcentaje = (item.factor_coccion && item.factor_coccion > 0) ? (1 / item.factor_coccion) * 100 : 100;
-        tr.innerHTML = `
-          <td>
-            <select class="receta-prod-select" data-idx="${idx}">
-              <option value="">Seleccionar</option>
-              ${productosCache.map(p =>
-                `<option value="${p.id}" ${p.id === item.producto_id ? 'selected' : ''}
-                  data-factor="${p.factor_desperdicio || 1}"
-                  data-precio="${p.precio_actual || 0}">${p.nombre}</option>`
-              ).join('')}
-            </select>
-          </td>
-          <td><input type="number" step="any" class="receta-cantidad" data-idx="${idx}" value="${item.cantidad_g || 0}" style="width:80px;" /></td>
-          <td>${(item.factor_desperdicio || 1).toFixed(2)}</td>
-          <td>${rendPorcentaje.toFixed(1)}%</td>
-          <td>${(item.factor_total || 1).toFixed(4)}</td>
-          <td>$${(item.precio_unitario || 0).toFixed(2)}</td>
-          <td>$${(item.costo || 0).toFixed(2)}</td>
-          <td>${(item.pctPeso || 0).toFixed(1)}%</td>
-          <td>${(item.pctCosto || 0).toFixed(1)}%</td>
-          <td><button class="btn-danger receta-remove" data-idx="${idx}">✕</button></td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      tbody.querySelectorAll('.receta-prod-select').forEach(sel => {
-        sel.addEventListener('change', function() {
-          const idx = parseInt(this.dataset.idx);
-          const prodId = this.value;
-          const prod = productosCache.find(p => p.id === prodId);
-          if (prod) {
-            const factorCoc = obtenerUltimoFactorCoccion(prodId);
-            productosReceta[idx].producto_id = prodId;
-            productosReceta[idx].factor_coccion = factorCoc;
-          } else {
-            productosReceta[idx].producto_id = '';
-            productosReceta[idx].factor_coccion = 1;
-          }
-          renderProductosReceta();
+      } else {
+        let pesoTotal = 0;
+        let costoTotal = 0;
+        productosReceta.forEach(item => {
+          const prod = productosCache.find(p => p.id === item.producto_id);
+          const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
+          const precio = prod ? prod.precio_actual || 0 : 0;
+          const factorCoc = item.factor_coccion || 1;
+          const factorTotal = factorDesp * factorCoc;
+          const cantidad = item.cantidad_g || 0;
+          const costo = (cantidad / 1000) * precio * factorTotal;
+          item.costo = costo;
+          item.factor_desperdicio = factorDesp;
+          item.factor_coccion = factorCoc;
+          item.factor_total = factorTotal;
+          item.precio_unitario = precio;
+          pesoTotal += cantidad;
+          costoTotal += costo;
         });
-      });
-
-      let timeoutId;
-      tbody.querySelectorAll('.receta-cantidad').forEach(inp => {
-        inp.addEventListener('input', function() {
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(() => {
+        productosReceta.forEach((item, idx) => {
+          const pctPeso = pesoTotal > 0 ? (item.cantidad_g / pesoTotal) * 100 : 0;
+          const pctCosto = costoTotal > 0 ? (item.costo / costoTotal) * 100 : 0;
+          const rendPorcentaje = (item.factor_coccion && item.factor_coccion > 0) ? (1 / item.factor_coccion) * 100 : 100;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <select class="receta-prod-select" data-idx="${idx}">
+                <option value="">Seleccionar</option>
+                ${productosCache.map(p =>
+                  `<option value="${p.id}" ${p.id === item.producto_id ? 'selected' : ''}
+                    data-factor="${p.factor_desperdicio || 1}"
+                    data-precio="${p.precio_actual || 0}">${p.nombre}</option>`
+                ).join('')}
+              </select>
+            </td>
+            <td><input type="number" step="any" class="receta-cantidad" data-idx="${idx}" value="${item.cantidad_g || 0}" style="width:80px;" /></td>
+            <td>${(item.factor_desperdicio || 1).toFixed(2)}</td>
+            <td>${rendPorcentaje.toFixed(1)}%</td>
+            <td>${(item.factor_total || 1).toFixed(4)}</td>
+            <td>$${(item.precio_unitario || 0).toFixed(2)}</td>
+            <td>$${(item.costo || 0).toFixed(2)}</td>
+            <td>${pctPeso.toFixed(1)}%</td>
+            <td>${pctCosto.toFixed(1)}%</td>
+            <td><button class="btn-danger receta-remove" data-idx="${idx}">✕</button></td>
+          `;
+          tbody.appendChild(tr);
+        });
+        // Eventos
+        tbody.querySelectorAll('.receta-prod-select').forEach(sel => {
+          sel.addEventListener('change', function() {
             const idx = parseInt(this.dataset.idx);
-            const val = parseFloat(this.value);
-            if (!isNaN(val) && val >= 0) {
-              productosReceta[idx].cantidad_g = val;
+            const prodId = this.value;
+            const prod = productosCache.find(p => p.id === prodId);
+            if (prod) {
+              const factorCoc = obtenerUltimoFactorCoccion(prodId);
+              productosReceta[idx].producto_id = prodId;
+              productosReceta[idx].factor_coccion = factorCoc;
             } else {
-              productosReceta[idx].cantidad_g = 0;
-              this.value = 0;
+              productosReceta[idx].producto_id = '';
+              productosReceta[idx].factor_coccion = 1;
             }
             renderProductosReceta();
-          }, 300);
+          });
         });
-      });
+        let timeoutId;
+        tbody.querySelectorAll('.receta-cantidad').forEach(inp => {
+          inp.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              const idx = parseInt(this.dataset.idx);
+              const val = parseFloat(this.value);
+              if (!isNaN(val) && val >= 0) {
+                productosReceta[idx].cantidad_g = val;
+              } else {
+                productosReceta[idx].cantidad_g = 0;
+                this.value = 0;
+              }
+              renderProductosReceta();
+            }, 300);
+          });
+        });
+        tbody.querySelectorAll('.receta-remove').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const idx = parseInt(this.dataset.idx);
+            productosReceta.splice(idx, 1);
+            renderProductosReceta();
+          });
+        });
+      }
+      actualizarResumenReceta();
+    }
 
-      tbody.querySelectorAll('.receta-remove').forEach(btn => {
-        btn.addEventListener('click', function() {
-          const idx = parseInt(this.dataset.idx);
-          productosReceta.splice(idx, 1);
-          renderProductosReceta();
+    function renderSubrecetasReceta() {
+      const tbody = document.getElementById('recetaSubrecetasBody');
+      tbody.innerHTML = '';
+      if (subrecetasReceta.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#666;padding:0.8rem;">Agregá subrecetas usando el botón</td></tr>';
+      } else {
+        subrecetasReceta.forEach((item, idx) => {
+          const receta = recetasCache.find(r => r.id === item.receta_id);
+          const costoPorcion = receta ? receta.costo_por_porcion || 0 : 0;
+          const cantidad = item.cantidad || 0;
+          const costoTotal = costoPorcion * cantidad;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <select class="receta-subreceta-select" data-idx="${idx}">
+                <option value="">Seleccionar</option>
+                ${recetasCache.map(r =>
+                  `<option value="${r.id}" ${r.id === item.receta_id ? 'selected' : ''}>${r.titulo}</option>`
+                ).join('')}
+              </select>
+            </td>
+            <td><input type="number" step="any" class="receta-subreceta-cantidad" data-idx="${idx}" value="${cantidad}" style="width:80px;" /></td>
+            <td>$${costoPorcion.toFixed(2)}</td>
+            <td>$${costoTotal.toFixed(2)}</td>
+            <td><button class="btn-danger subreceta-remove" data-idx="${idx}">✕</button></td>
+          `;
+          tbody.appendChild(tr);
         });
-      });
+        // Eventos
+        tbody.querySelectorAll('.receta-subreceta-select').forEach(sel => {
+          sel.addEventListener('change', function() {
+            const idx = parseInt(this.dataset.idx);
+            const recetaId = this.value;
+            subrecetasReceta[idx].receta_id = recetaId;
+            renderSubrecetasReceta();
+            actualizarResumenReceta();
+          });
+        });
+        let timeoutId;
+        tbody.querySelectorAll('.receta-subreceta-cantidad').forEach(inp => {
+          inp.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              const idx = parseInt(this.dataset.idx);
+              const val = parseFloat(this.value);
+              if (!isNaN(val) && val >= 0) {
+                subrecetasReceta[idx].cantidad = val;
+              } else {
+                subrecetasReceta[idx].cantidad = 0;
+                this.value = 0;
+              }
+              renderSubrecetasReceta();
+              actualizarResumenReceta();
+            }, 300);
+          });
+        });
+        tbody.querySelectorAll('.subreceta-remove').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const idx = parseInt(this.dataset.idx);
+            subrecetasReceta.splice(idx, 1);
+            renderSubrecetasReceta();
+            actualizarResumenReceta();
+          });
+        });
+      }
       actualizarResumenReceta();
     }
 
     function actualizarResumenReceta() {
       let pesoTotal = 0;
-      let costoTotal = 0;
+      let costoProductos = 0;
       productosReceta.forEach(item => {
         pesoTotal += item.cantidad_g || 0;
-        costoTotal += item.costo || 0;
+        costoProductos += item.costo || 0;
       });
+      let costoSubrecetas = 0;
+      subrecetasReceta.forEach(item => {
+        const receta = recetasCache.find(r => r.id === item.receta_id);
+        const costoPorcion = receta ? receta.costo_por_porcion || 0 : 0;
+        costoSubrecetas += costoPorcion * (item.cantidad || 0);
+      });
+      const costoTotal = costoProductos + costoSubrecetas;
       const margen = costoTotal * 0.05;
       const costoFinal = costoTotal + margen;
 
@@ -1473,37 +1607,33 @@
       const costoPorPorcion = numPorciones > 0 ? costoFinal / numPorciones : 0;
 
       document.getElementById('resPesoTotal').textContent = pesoTotal.toFixed(1);
-      document.getElementById('resCostoTotalReceta').textContent = '$' + costoTotal.toFixed(2);
-      document.getElementById('resMargenReceta').textContent = '$' + margen.toFixed(2);
+      document.getElementById('resCostoTotalReceta').textContent = '$' + costoProductos.toFixed(2);
+      document.getElementById('resCostoSubrecetas').textContent = '$' + costoSubrecetas.toFixed(2);
       document.getElementById('resCostoFinalReceta').textContent = '$' + costoFinal.toFixed(2);
       document.getElementById('resCostoPorcionReceta').textContent = '$' + costoPorPorcion.toFixed(2);
       document.getElementById('resNumPorcionesReceta').textContent = numPorciones || 0;
     }
 
-    document.getElementById('recetaPorcionGramos').addEventListener('input', () => {
-      actualizarResumenReceta();
-    });
-    document.getElementById('recetaNumPorciones').addEventListener('input', () => {
-      actualizarResumenReceta();
-    });
-
-    document.getElementById('limpiarPorcionGramos').addEventListener('click', () => {
-      document.getElementById('recetaPorcionGramos').value = '';
-      actualizarResumenReceta();
-    });
-    document.getElementById('limpiarNumPorciones').addEventListener('click', () => {
-      document.getElementById('recetaNumPorciones').value = '';
-      actualizarResumenReceta();
-    });
+    function obtenerUltimoFactorCoccion(productoId) {
+      const rend = rendCoccionCache.find(r => r.producto_id === productoId);
+      return rend ? rend.factor_coccion || 1 : 1;
+    }
 
     document.getElementById('agregarProductoReceta').addEventListener('click', () => {
       productosReceta.push({ producto_id: '', cantidad_g: 0, factor_coccion: 1 });
       renderProductosReceta();
     });
 
+    document.getElementById('agregarSubrecetaReceta').addEventListener('click', () => {
+      subrecetasReceta.push({ receta_id: '', cantidad: 0 });
+      renderSubrecetasReceta();
+    });
+
     document.getElementById('limpiarReceta').addEventListener('click', () => {
       productosReceta = [];
+      subrecetasReceta = [];
       renderProductosReceta();
+      renderSubrecetasReceta();
       document.getElementById('recetaTitulo').value = '';
       document.getElementById('recetaFecha').value = new Date().toISOString().split('T')[0];
       document.getElementById('recetaTipoPlato').value = '';
@@ -1514,14 +1644,23 @@
       logMsg('logRecetas', '🧹 Receta limpiada.', 'info');
     });
 
+    let recetasCache = [];
+
     document.getElementById('guardarReceta').addEventListener('click', async () => {
       const logId = 'logRecetas';
       logMsg(logId, '🔄 Guardando receta...');
       const titulo = document.getElementById('recetaTitulo').value.trim();
       if (!titulo) { logMsg(logId, '❌ Título requerido.', 'error'); return; }
-      if (productosReceta.length === 0 || productosReceta.every(p => !p.producto_id || p.cantidad_g <= 0)) {
-        logMsg(logId, '❌ Agregá al menos un producto con cantidad > 0.', 'error');
+      if (productosReceta.length === 0 && subrecetasReceta.length === 0) {
+        logMsg(logId, '❌ Agregá al menos un producto o subreceta.', 'error');
         return;
+      }
+      // Validar productos
+      for (const item of productosReceta) {
+        if (!item.producto_id || item.cantidad_g <= 0) {
+          logMsg(logId, '❌ Todos los productos deben tener producto y cantidad > 0.', 'error');
+          return;
+        }
       }
       const fecha = document.getElementById('recetaFecha').value;
       const tipo = document.getElementById('recetaTipoPlato').value;
@@ -1529,8 +1668,8 @@
       const observaciones = document.getElementById('recetaObservaciones').value.trim();
 
       let pesoTotal = 0;
-      let costoTotal = 0;
-      const items = [];
+      let costoProductos = 0;
+      const itemsProductos = [];
       for (const item of productosReceta) {
         const prod = productosCache.find(p => p.id === item.producto_id);
         if (!prod) continue;
@@ -1540,8 +1679,8 @@
         const precio = prod.precio_actual || 0;
         const costo = (item.cantidad_g / 1000) * precio * factorTotal;
         pesoTotal += item.cantidad_g;
-        costoTotal += costo;
-        items.push({
+        costoProductos += costo;
+        itemsProductos.push({
           producto_id: item.producto_id,
           cantidad_g: item.cantidad_g,
           factor_desperdicio: factorDesp,
@@ -1552,6 +1691,22 @@
         });
       }
 
+      let costoSubrecetas = 0;
+      const itemsSubrecetas = [];
+      for (const item of subrecetasReceta) {
+        const receta = recetasCache.find(r => r.id === item.receta_id);
+        const costoPorcion = receta ? receta.costo_por_porcion || 0 : 0;
+        const costo = costoPorcion * (item.cantidad || 0);
+        costoSubrecetas += costo;
+        itemsSubrecetas.push({
+          receta_id: item.receta_id,
+          cantidad: item.cantidad || 0,
+          costo_por_porcion: costoPorcion,
+          costo_total: costo
+        });
+      }
+
+      const costoTotal = costoProductos + costoSubrecetas;
       const margen = costoTotal * 0.05;
       const costoFinal = costoTotal + margen;
 
@@ -1577,8 +1732,11 @@
           tipo_plato: tipo,
           responsable,
           observaciones,
-          productos: items,
+          productos: itemsProductos,
+          subrecetas: itemsSubrecetas,
           peso_total_g: pesoTotal,
+          costo_productos: costoProductos,
+          costo_subrecetas: costoSubrecetas,
           costo_total_ingredientes: costoTotal,
           margen_error: 5,
           costo_final: costoFinal,
@@ -1589,7 +1747,9 @@
         });
         logMsg(logId, '✅ Receta guardada.', 'exito');
         productosReceta = [];
+        subrecetasReceta = [];
         renderProductosReceta();
+        renderSubrecetasReceta();
         document.getElementById('recetaTitulo').value = '';
         document.getElementById('recetaFecha').value = new Date().toISOString().split('T')[0];
         document.getElementById('recetaTipoPlato').value = '';
@@ -1605,32 +1765,20 @@
     });
 
     // ================================================================
-    // 4. CALCULADORA DE COMPRAS (CORREGIDA)
+    // 6. CALCULADORA DE COMPRAS (corregida)
     // ================================================================
-    function cargarSelectoresCalculadora() {
-      const sel = document.getElementById('calcProducto');
-      sel.innerHTML = '<option value="">Seleccionar</option>';
-      productosCache.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.nombre;
-        sel.appendChild(opt);
-      });
-    }
-
     document.getElementById('calcProducto').addEventListener('change', function() {
       const prodId = this.value;
       if (prodId) {
         const prod = productosCache.find(p => p.id === prodId);
-        const rend = rendimientosCache.find(r => r.producto_id === prodId);
+        const rend = rendCoccionCache.find(r => r.producto_id === prodId);
         const factorCoc = rend ? rend.factor_coccion : 1;
         const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
-        const rendPorcentaje = rend ? rend.rendimiento_porcentaje : 100;
-        // Factor total para cálculo de bruto (inverso)
-        // Si rendPorcentaje > 100 (ej. arroz), usamos el inverso del rendimiento
-        // Si rendPorcentaje < 100 (ej. carne), usamos factor_total = factorDesp * factorCoc
+        // Si el rendimiento % > 100 (ej. arroz), usamos la fórmula corregida
+        const rendPorcentaje = rend ? rend.rendimiento_porcentaje || 100 : 100;
         let factorTotal;
         if (rendPorcentaje > 100) {
+          // Producto que se expande: factor_total = factor_desp * (rendPorcentaje / 100)
           factorTotal = factorDesp * (rendPorcentaje / 100);
         } else {
           factorTotal = factorDesp * factorCoc;
@@ -1657,10 +1805,10 @@
         logMsg('logCalc', '❌ Producto no encontrado.', 'error');
         return;
       }
-      const rend = rendimientosCache.find(r => r.producto_id === prodId);
+      const rend = rendCoccionCache.find(r => r.producto_id === prodId);
       const factorCoc = rend ? rend.factor_coccion : 1;
       const factorDesp = prod.factor_desperdicio || 1;
-      const rendPorcentaje = rend ? rend.rendimiento_porcentaje : 100;
+      const rendPorcentaje = rend ? rend.rendimiento_porcentaje || 100 : 100;
       let factorTotal;
       if (rendPorcentaje > 100) {
         factorTotal = factorDesp * (rendPorcentaje / 100);
@@ -1690,122 +1838,116 @@
     });
 
     // ================================================================
-    // 5. COMPRAS
+    // LISTADOS (productos, rendimientos, compras, historial)
     // ================================================================
-    function cargarSelectoresCompras() {
-      const sel = document.getElementById('compraProducto');
-      sel.innerHTML = '<option value="">Seleccionar</option>';
-      productosCache.forEach(p => {
-        const opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.nombre;
-        sel.appendChild(opt);
-      });
-    }
-
-    document.getElementById('compraCantidad').addEventListener('input', calcularPrecioKg);
-    document.getElementById('compraPrecioTotal').addEventListener('input', calcularPrecioKg);
-
-    function calcularPrecioKg() {
-      const cantidad = parseFloat(document.getElementById('compraCantidad').value) || 0;
-      const total = parseFloat(document.getElementById('compraPrecioTotal').value) || 0;
-      if (cantidad > 0 && total > 0) {
-        const precioKg = total / cantidad;
-        document.getElementById('compraPrecioKg').value = precioKg.toFixed(2);
-      } else {
-        document.getElementById('compraPrecioKg').value = '';
-      }
-    }
-
-    document.getElementById('guardarCompra').addEventListener('click', async () => {
-      const logId = 'logCompras';
-      logMsg(logId, '🔄 Guardando compra...');
-      const fecha = document.getElementById('compraFecha').value;
-      const proveedor = document.getElementById('compraProveedor').value.trim();
-      const productoId = document.getElementById('compraProducto').value;
-      const cantidad = parseFloat(document.getElementById('compraCantidad').value) || 0;
-      const precioTotal = parseFloat(document.getElementById('compraPrecioTotal').value) || 0;
-      const precioKg = parseFloat(document.getElementById('compraPrecioKg').value) || 0;
-
-      if (!fecha || !proveedor || !productoId || cantidad <= 0 || precioTotal <= 0) {
-        logMsg(logId, '❌ Todos los campos son obligatorios (fecha, proveedor, producto, cantidad > 0, precio total > 0).', 'error');
+    function cargarListaProductos() {
+      const contenedor = document.getElementById('listaProductos');
+      if (!productosCache.length) {
+        contenedor.innerHTML = '<p style="color:#666;">No hay productos registrados.</p>';
         return;
       }
-
-      try {
-        await db.collection('compras').add({
-          fecha,
-          proveedor,
-          producto_id: productoId,
-          cantidad,
-          precio_total: precioTotal,
-          precio_kg: precioKg,
-          created_at: new Date()
-        });
-        logMsg(logId, '✅ Compra guardada.', 'exito');
-        await actualizarPreciosDesdeCompras();
-        limpiarCamposCompra();
-        recargarTodo();
-      } catch (e) {
-        logMsg(logId, '❌ Error: ' + e.message, 'error');
-        console.error(e);
-      }
-    });
-
-    document.getElementById('limpiarCompra').addEventListener('click', () => {
-      limpiarCamposCompra();
-      logMsg('logCompras', '🧹 Campos limpiados.', 'info');
-    });
-
-    function limpiarCamposCompra() {
-      document.getElementById('compraFecha').value = new Date().toISOString().split('T')[0];
-      document.getElementById('compraProveedor').value = '';
-      document.getElementById('compraProducto').value = '';
-      document.getElementById('compraCantidad').value = '';
-      document.getElementById('compraPrecioTotal').value = '';
-      document.getElementById('compraPrecioKg').value = '';
+      let html = '';
+      productosCache.forEach(p => {
+        html += `
+          <div class="card">
+            <strong>${p.nombre}</strong>
+            <span class="badge">${p.categoria || 'sin categoría'}</span>
+            <button class="borrar" data-id="${p.id}" data-coleccion="productos">✕</button>
+            <button class="editar" data-id="${p.id}" data-coleccion="productos" data-tipo="producto">✏️ Editar</button>
+            <br>
+            <span style="font-size:0.9rem;color:#999;">
+              Precio: $${(p.precio_actual || 0).toFixed(2)}/kg | Unidad: ${p.unidad_base || 'kg'}
+            </span>
+          </div>
+        `;
+      });
+      contenedor.innerHTML = html;
+      asignarEventosLista(contenedor);
     }
 
-    async function cargarListaCompras() {
+    function cargarListaRendCrudo() {
+      const contenedor = document.getElementById('listaRendCrudo');
+      if (!rendCrudoCache.length) {
+        contenedor.innerHTML = '<p style="color:#666;">No hay rendimientos en crudo guardados.</p>';
+        return;
+      }
+      let html = '';
+      rendCrudoCache.forEach(r => {
+        const prod = productosCache.find(p => p.id === r.producto_id);
+        const nombreProd = prod ? prod.nombre : 'Producto eliminado';
+        html += `
+          <div class="card">
+            <strong>${nombreProd}</strong>
+            <span class="badge">Factor: ${(r.factor_desperdicio || 0).toFixed(2)}</span>
+            <button class="borrar" data-id="${r.id}" data-coleccion="rendimientos_crudos">✕</button>
+            <button class="editar" data-id="${r.id}" data-coleccion="rendimientos_crudos" data-tipo="rendCrudo">✏️ Editar</button>
+            <br>
+            <span style="font-size:0.9rem;color:#999;">
+              Bruto: ${r.peso_bruto}g | Limpio: ${r.peso_limpio}g | Merma: ${(r.peso_bruto - r.peso_limpio)}g
+              ${r.responsable ? '| Resp: ' + r.responsable : ''}
+            </span>
+          </div>
+        `;
+      });
+      contenedor.innerHTML = html;
+      asignarEventosLista(contenedor);
+    }
+
+    function cargarListaRendCoccion() {
+      const contenedor = document.getElementById('listaRendCoccion');
+      if (!rendCoccionCache.length) {
+        contenedor.innerHTML = '<p style="color:#666;">No hay rendimientos por cocción guardados.</p>';
+        return;
+      }
+      let html = '';
+      rendCoccionCache.forEach(r => {
+        const prod = productosCache.find(p => p.id === r.producto_id);
+        const nombreProd = prod ? prod.nombre : 'Producto eliminado';
+        html += `
+          <div class="card">
+            <strong>${nombreProd}</strong>
+            <span class="badge">Factor: ${(r.factor_coccion || 0).toFixed(2)}</span>
+            <button class="borrar" data-id="${r.id}" data-coleccion="rendimientos_coccion">✕</button>
+            <button class="editar" data-id="${r.id}" data-coleccion="rendimientos_coccion" data-tipo="rendCoccion">✏️ Editar</button>
+            <br>
+            <span style="font-size:0.9rem;color:#999;">
+              Inicial: ${r.peso_inicial}g | Final: ${r.peso_final}g | Merma: ${r.merma || 0}g
+              ${r.responsable ? '| Resp: ' + r.responsable : ''}
+            </span>
+          </div>
+        `;
+      });
+      contenedor.innerHTML = html;
+      asignarEventosLista(contenedor);
+    }
+
+    function cargarListaCompras() {
       const contenedor = document.getElementById('listaCompras');
-      try {
-        const snap = await db.collection('compras').orderBy('fecha', 'desc').get();
-        if (snap.empty) {
-          contenedor.innerHTML = '<p style="color:#666;">No hay compras registradas.</p>';
-          return;
-        }
-        let html = '';
-        snap.forEach(doc => {
-          const data = doc.data();
-          const prod = productosCache.find(p => p.id === data.producto_id);
-          const nombreProd = prod ? prod.nombre : 'Producto eliminado';
-          html += `
-            <div class="card">
-              <strong>${data.proveedor}</strong>
-              <span class="badge">${nombreProd}</span>
-              <button class="borrar" data-id="${doc.id}" data-coleccion="compras">✕</button>
-              <br>
-              <span style="font-size:0.9rem;color:#999;">
-                ${data.fecha} | ${data.cantidad} kg | Total: $${data.precio_total.toFixed(2)} | $/kg: $${data.precio_kg.toFixed(2)}
-              </span>
-            </div>
-          `;
-        });
-        contenedor.innerHTML = html;
-        asignarEventosLista(contenedor);
-      } catch (e) {
-        console.error('Error cargando compras:', e);
-        contenedor.innerHTML = '<p style="color:#ef5350;">Error al cargar.</p>';
+      if (!comprasCache.length) {
+        contenedor.innerHTML = '<p style="color:#666;">No hay compras registradas.</p>';
+        return;
       }
+      let html = '';
+      comprasCache.forEach(c => {
+        const prod = productosCache.find(p => p.id === c.producto_id);
+        const nombreProd = prod ? prod.nombre : 'Producto eliminado';
+        html += `
+          <div class="card">
+            <strong>${c.proveedor}</strong>
+            <span class="badge">${nombreProd}</span>
+            <button class="borrar" data-id="${c.id}" data-coleccion="compras">✕</button>
+            <button class="editar" data-id="${c.id}" data-coleccion="compras" data-tipo="compra">✏️ Editar</button>
+            <br>
+            <span style="font-size:0.9rem;color:#999;">
+              ${c.fecha} | ${c.cantidad} kg | Total: $${c.precio_total.toFixed(2)} | $/kg: $${c.precio_kg.toFixed(2)}
+            </span>
+          </div>
+        `;
+      });
+      contenedor.innerHTML = html;
+      asignarEventosLista(contenedor);
     }
 
-    async function cargarCompras() {
-      await cargarListaCompras();
-    }
-
-    // ================================================================
-    // 6. HISTORIAL
-    // ================================================================
     async function cargarHistorial() {
       const contenedor = document.getElementById('historial');
       try {
@@ -1815,9 +1957,11 @@
           return;
         }
         let html = '';
-        for (const doc of snap.docs) {
+        snap.forEach(doc => {
           const data = doc.data();
+          recetasCache.push({ id: doc.id, ...data });
           const totalProds = data.productos ? data.productos.length : 0;
+          const totalSubs = data.subrecetas ? data.subrecetas.length : 0;
           html += `
             <div class="card">
               <strong>${data.titulo || 'Sin título'}</strong>
@@ -1827,13 +1971,13 @@
               <br>
               <span style="font-size:0.9rem;color:#999;">
                 Costo final: $${(data.costo_final || 0).toFixed(2)} |
-                ${totalProds} productos |
+                ${totalProds} productos | ${totalSubs} subrecetas |
                 ${data.responsable ? 'Resp: ' + data.responsable : ''}
                 ${data.observaciones ? '| Obs: ' + data.observaciones : ''}
               </span>
             </div>
           `;
-        }
+        });
         contenedor.innerHTML = html;
         asignarEventosLista(contenedor);
       } catch (e) {
@@ -1842,13 +1986,8 @@
       }
     }
 
-    document.getElementById('refrescarHistorial').addEventListener('click', cargarHistorial);
-    document.getElementById('refrescarProductos').addEventListener('click', recargarTodo);
-    document.getElementById('refrescarCoccion').addEventListener('click', recargarTodo);
-    document.getElementById('refrescarCompras').addEventListener('click', recargarTodo);
-
     // ================================================================
-    // FUNCIONES COMUNES PARA LISTAS
+    // FUNCIONES COMUNES PARA LISTAS (editar/eliminar)
     // ================================================================
     function asignarEventosLista(contenedor) {
       contenedor.querySelectorAll('.borrar').forEach(btn => {
@@ -1877,34 +2016,32 @@
     }
 
     // ================================================================
+    // BOTONES DE REFRESCO
+    // ================================================================
+    document.getElementById('refrescarProductos').addEventListener('click', recargarTodo);
+    document.getElementById('refrescarRendCrudo').addEventListener('click', recargarTodo);
+    document.getElementById('refrescarRendCoccion').addEventListener('click', recargarTodo);
+    document.getElementById('refrescarCompras').addEventListener('click', recargarTodo);
+    document.getElementById('refrescarHistorial').addEventListener('click', recargarTodo);
+
+    // ================================================================
     // INICIALIZACIÓN
     // ================================================================
     (async function init() {
-      await cargarSelectsProductos();
-      await cargarRendimientosCoccion();
-      await cargarCompras();
-      productosReceta = [];
-      renderProductosReceta();
-      cargarListaProductos();
-      cargarListaRendimientos();
-      cargarHistorial();
-      cargarSelectoresCalculadora();
-      cargarSelectoresCompras();
-      calcularFactoresProducto();
-      calcularFactoresCoccion();
-      await actualizarPreciosDesdeCompras();
-
+      // Establecer fechas por defecto
       const hoy = new Date().toISOString().split('T')[0];
-      document.getElementById('prodFecha').value = hoy;
-      document.getElementById('coccionFecha').value = hoy;
-      document.getElementById('recetaFecha').value = hoy;
+      document.getElementById('rendCrudoFecha').value = hoy;
+      document.getElementById('rendCoccionFecha').value = hoy;
       document.getElementById('compraFecha').value = hoy;
+      document.getElementById('recetaFecha').value = hoy;
 
+      await recargarTodo();
       logMsg('logProductos', '✅ App lista.', 'exito');
-      logMsg('logCoccion', '✅ Listo.', 'exito');
+      logMsg('logRendCrudo', '✅ Listo.', 'exito');
+      logMsg('logRendCoccion', '✅ Listo.', 'exito');
+      logMsg('logCompras', '✅ Listo.', 'exito');
       logMsg('logRecetas', '✅ Listo.', 'exito');
       logMsg('logCalc', '✅ Calculadora lista.', 'exito');
-      logMsg('logCompras', '✅ Módulo de compras listo.', 'exito');
     })();
   </script>
 </body>
