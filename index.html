@@ -7,7 +7,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <style>
-    /* (Mismo CSS que la versión anterior, solo se agrega un pequeño estilo para la pestaña) */
+    /* ===== CSS (igual que la versión anterior, sin cambios) ===== */
     * {
       box-sizing: border-box;
       font-family: 'Courier New', monospace;
@@ -412,7 +412,7 @@
       <h1>🧑‍🍳 atenai-costeos</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
-        <span>Versión 1.2 · 30/06/2026 23:00 hs</span>
+        <span>Versión 1.4 · 01/07/2026 01:00 hs</span>
       </div>
     </div>
 
@@ -429,8 +429,21 @@
     <div id="tab1" class="tab-panel activo">
       <div class="seccion">
         <h3>📦 Productos (rendimiento en crudo)</h3>
+        <!-- MODIFICADO: Agregué el campo "categoria" y reordené la grilla -->
         <div class="grid-3">
           <div><label>Nombre</label><input id="prodNombre" placeholder="Ej. Lomo" /></div>
+          <div>
+            <label>Categoría</label>
+            <select id="prodCategoria">
+              <option value="">Seleccionar</option>
+              <option value="carniceria">Carnicería</option>
+              <option value="pescaderia">Pescadería</option>
+              <option value="verduleria">Verdulería</option>
+              <option value="almacen">Almacén</option>
+              <option value="frescos_y_lacteos">Frescos y Lácteos</option>
+              <option value="bebidas">Bebidas</option>
+            </select>
+          </div>
           <div><label>Fecha</label><input id="prodFecha" type="date" /></div>
           <div><label>Responsable</label><input id="prodResponsable" placeholder="Nombre" /></div>
           <div><label>Peso bruto (g)</label><input id="prodBruto" type="number" step="any" placeholder="2500" /></div>
@@ -669,6 +682,9 @@
 
   </div>
 
+  <!-- ============================================================ -->
+  <!-- JAVASCRIPT                                                   -->
+  <!-- ============================================================ -->
   <script>
     // ================================================================
     // CONFIGURACIÓN FIREBASE
@@ -709,7 +725,7 @@
     });
 
     // ================================================================
-    // MODAL DE EDICIÓN (sin cambios relevantes)
+    // MODAL DE EDICIÓN
     // ================================================================
     let registroEditando = null;
 
@@ -722,9 +738,22 @@
 
       let html = '';
       if (tipo === 'producto') {
+        // MODIFICADO: Agregar campo categoria al modal de edición
         html = `
           <div class="grid-2">
             <div><label>Nombre</label><input id="editProdNombre" value="${datos.nombre || ''}" /></div>
+            <div>
+              <label>Categoría</label>
+              <select id="editProdCategoria">
+                <option value="">Seleccionar</option>
+                <option value="carniceria" ${datos.categoria === 'carniceria' ? 'selected' : ''}>Carnicería</option>
+                <option value="pescaderia" ${datos.categoria === 'pescaderia' ? 'selected' : ''}>Pescadería</option>
+                <option value="verduleria" ${datos.categoria === 'verduleria' ? 'selected' : ''}>Verdulería</option>
+                <option value="almacen" ${datos.categoria === 'almacen' ? 'selected' : ''}>Almacén</option>
+                <option value="frescos_y_lacteos" ${datos.categoria === 'frescos_y_lacteos' ? 'selected' : ''}>Frescos y Lácteos</option>
+                <option value="bebidas" ${datos.categoria === 'bebidas' ? 'selected' : ''}>Bebidas</option>
+              </select>
+            </div>
             <div><label>Fecha</label><input id="editProdFecha" type="date" value="${datos.fecha || ''}" /></div>
             <div><label>Responsable</label><input id="editProdResponsable" value="${datos.responsable || ''}" /></div>
             <div><label>Peso bruto (g)</label><input id="editProdBruto" type="number" step="any" value="${datos.peso_bruto || 0}" /></div>
@@ -868,6 +897,7 @@
         let datosActualizados = {};
         if (tipo === 'producto') {
           const nombre = document.getElementById('editProdNombre').value.trim();
+          const categoria = document.getElementById('editProdCategoria').value;
           const bruto = parseFloat(document.getElementById('editProdBruto').value) || 0;
           const limpio = parseFloat(document.getElementById('editProdLimpio').value) || 0;
           const reutilizable = parseFloat(document.getElementById('editProdReutilizable').value) || 0;
@@ -883,6 +913,7 @@
           const factor = bruto / limpio;
           datosActualizados = {
             nombre,
+            categoria,
             peso_bruto: bruto,
             peso_limpio: limpio,
             desperdicio,
@@ -1026,7 +1057,7 @@
     }
 
     // ================================================================
-    // 1. PRODUCTOS
+    // 1. PRODUCTOS (con campo categoría)
     // ================================================================
     function calcularDesperdicioAutomatico() {
       const bruto = parseFloat(document.getElementById('prodBruto').value) || 0;
@@ -1067,14 +1098,11 @@
       calcularFactoresProducto();
     });
 
-    // El precio ahora se actualiza automáticamente desde compras, no desde input manual
-    // Pero mantenemos la función para cuando se edite manualmente en el modal
-    document.getElementById('prodPrecio').addEventListener('input', calcularFactoresProducto);
-
     document.getElementById('guardarProducto').addEventListener('click', async () => {
       const logId = 'logProductos';
       logMsg(logId, '🔄 Guardando producto...');
       const nombre = document.getElementById('prodNombre').value.trim();
+      const categoria = document.getElementById('prodCategoria').value;
       const bruto = parseFloat(document.getElementById('prodBruto').value) || 0;
       const limpio = parseFloat(document.getElementById('prodLimpio').value) || 0;
       const reutilizable = parseFloat(document.getElementById('prodReutilizable').value) || 0;
@@ -1091,6 +1119,7 @@
       try {
         await db.collection('productos').add({
           nombre,
+          categoria,
           peso_bruto: bruto,
           peso_limpio: limpio,
           desperdicio,
@@ -1118,6 +1147,7 @@
 
     function limpiarCamposProducto() {
       document.getElementById('prodNombre').value = '';
+      document.getElementById('prodCategoria').value = '';
       document.getElementById('prodBruto').value = '';
       document.getElementById('prodLimpio').value = '';
       document.getElementById('prodReutilizable').value = '';
@@ -1143,13 +1173,13 @@
             preciosPorProducto[prodId] = data.precio_kg;
           }
         });
-        // Actualizar productos en Firestore con el último precio
         for (const [prodId, precio] of Object.entries(preciosPorProducto)) {
           await db.collection('productos').doc(prodId).update({ precio_actual: precio });
         }
-        // Refrescar la vista de productos
         await cargarSelectsProductos();
         cargarListaProductos();
+        // Actualizar el precio mostrado en el formulario de producto (si está seleccionado uno)
+        // No hay un selector de producto en la pestaña de productos, solo se muestra al cargar la lista.
       } catch (e) {
         console.error('Error actualizando precios desde compras:', e);
       }
@@ -1575,7 +1605,7 @@
     });
 
     // ================================================================
-    // 4. CALCULADORA DE COMPRAS
+    // 4. CALCULADORA DE COMPRAS (CORREGIDA)
     // ================================================================
     function cargarSelectoresCalculadora() {
       const sel = document.getElementById('calcProducto');
@@ -1595,7 +1625,16 @@
         const rend = rendimientosCache.find(r => r.producto_id === prodId);
         const factorCoc = rend ? rend.factor_coccion : 1;
         const factorDesp = prod ? prod.factor_desperdicio || 1 : 1;
-        const factorTotal = factorDesp * factorCoc;
+        const rendPorcentaje = rend ? rend.rendimiento_porcentaje : 100;
+        // Factor total para cálculo de bruto (inverso)
+        // Si rendPorcentaje > 100 (ej. arroz), usamos el inverso del rendimiento
+        // Si rendPorcentaje < 100 (ej. carne), usamos factor_total = factorDesp * factorCoc
+        let factorTotal;
+        if (rendPorcentaje > 100) {
+          factorTotal = factorDesp * (rendPorcentaje / 100);
+        } else {
+          factorTotal = factorDesp * factorCoc;
+        }
         document.getElementById('calcFactorTotal').value = factorTotal.toFixed(4);
         document.getElementById('calcFactorDesp').textContent = factorDesp.toFixed(2);
         document.getElementById('calcFactorCoccion').textContent = factorCoc.toFixed(4);
@@ -1621,7 +1660,13 @@
       const rend = rendimientosCache.find(r => r.producto_id === prodId);
       const factorCoc = rend ? rend.factor_coccion : 1;
       const factorDesp = prod.factor_desperdicio || 1;
-      const factorTotal = factorDesp * factorCoc;
+      const rendPorcentaje = rend ? rend.rendimiento_porcentaje : 100;
+      let factorTotal;
+      if (rendPorcentaje > 100) {
+        factorTotal = factorDesp * (rendPorcentaje / 100);
+      } else {
+        factorTotal = factorDesp * factorCoc;
+      }
       const brutoNecesario = netoDeseado / factorTotal;
       const costoEstimado = (brutoNecesario / 1000) * (prod.precio_actual || 0);
 
@@ -1698,7 +1743,6 @@
           created_at: new Date()
         });
         logMsg(logId, '✅ Compra guardada.', 'exito');
-        // Actualizar el precio del producto automáticamente
         await actualizarPreciosDesdeCompras();
         limpiarCamposCompra();
         recargarTodo();
