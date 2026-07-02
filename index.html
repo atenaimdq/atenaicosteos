@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>atenai-costeos v4.2</title>
+  <title>atenai-costeos v4.3</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <!-- Librería para exportar PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -271,6 +273,70 @@
     .modal-contenido h2 { color: #0055cc; margin-top: 0; }
     .modal-contenido .flex { margin-top: 1.5rem; }
 
+    /* Estilos para el reporte PDF (se aplican al contenedor oculto) */
+    #reporte-container {
+      display: none;
+      background: white;
+      padding: 2rem;
+      font-family: 'Segoe UI', Roboto, sans-serif;
+      color: #000;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    #reporte-container h2 {
+      color: #0055cc;
+      border-bottom: 2px solid #0055cc;
+      padding-bottom: 0.5rem;
+    }
+    #reporte-container table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.9rem;
+    }
+    #reporte-container th {
+      background: #eaeaea;
+      padding: 8px;
+      text-align: center;
+      font-weight: 600;
+    }
+    #reporte-container td {
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    #reporte-container .resumen-pdf {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    #reporte-container .resumen-pdf-item {
+      background: #f0f7ff;
+      padding: 0.8rem;
+      border-radius: 8px;
+      text-align: center;
+      border-left: 4px solid #0055cc;
+    }
+    #reporte-container .resumen-pdf-item .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      color: #666;
+    }
+    #reporte-container .resumen-pdf-item .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #0055cc;
+    }
+    #reporte-container .footer-pdf {
+      margin-top: 2rem;
+      font-size: 0.8rem;
+      color: #666;
+      text-align: center;
+      border-top: 1px solid #ccc;
+      padding-top: 1rem;
+    }
+
     @media (max-width: 700px) {
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
       .tabs .tab-btn { flex: 1 1 100%; text-align: center; }
@@ -283,11 +349,11 @@
   <div class="container">
 
     <div class="header">
-      <h1>🧑‍🍳 atenai-costeos v4.2</h1>
+      <h1>🧑‍🍳 atenai-costeos v4.3</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
         <span>Basado en el artículo de Ingeniería de Menú</span>
-        <span>Última actualización: 02/07/2026 01:30 hs (Argentina)</span>
+        <span>Última actualización: 02/07/2026 02:00 hs (Argentina)</span>
       </div>
     </div>
 
@@ -491,6 +557,7 @@
           <button id="agregarIngrediente" class="btn-sec">➕ Agregar</button>
           <button id="guardarReceta">💾 Guardar</button>
           <button id="limpiarReceta" class="btn-sec">🧹 Limpiar</button>
+          <button id="exportarPDF" class="btn-sec">📄 Exportar PDF</button>
         </div>
 
         <div class="resumen">
@@ -528,6 +595,9 @@
         <div id="modalLog" class="log"></div>
       </div>
     </div>
+
+    <!-- ===== CONTENEDOR PARA REPORTE PDF (oculto) ===== -->
+    <div id="reporte-container"></div>
 
   </div>
 
@@ -577,7 +647,7 @@
       const body = document.getElementById('modalBody');
       const log = document.getElementById('modalLog');
       log.innerHTML = '';
-      body.innerHTML = `<p style="color:#888;">Edición completa disponible en la versión 4.2.</p>`;
+      body.innerHTML = `<p style="color:#888;">Edición completa disponible en la versión 4.3.</p>`;
       modal.style.display = 'flex';
     }
     document.getElementById('modalCancelar').addEventListener('click', () => {
@@ -1054,7 +1124,7 @@
     }
 
     // ================================================================
-    // RECETAS (CON OPCIONES)
+    // RECETAS
     // ================================================================
     let ingredientesReceta = [];
 
@@ -1104,10 +1174,9 @@
         // Convertir según base de costeo
         let pesoNetoEquivalente = pesoIngresado;
         if (baseCosteo === 'cocido') {
-          // Si el usuario ingresó peso cocido, calculamos el neto equivalente
           const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
           const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
-          pesoNetoEquivalente = pesoIngresado * factorCoc; // neto = cocido * factor_coccion
+          pesoNetoEquivalente = pesoIngresado * factorCoc;
         }
 
         const pesoBrutoNecesario = pesoNetoEquivalente * factorM;
@@ -1346,6 +1415,144 @@
         logMsg(logId, '❌ Error: ' + e.message, 'error');
         console.error(e);
       }
+    });
+
+    // ================================================================
+    // EXPORTAR A PDF
+    // ================================================================
+    document.getElementById('exportarPDF').addEventListener('click', function() {
+      const titulo = document.getElementById('recetaTitulo').value.trim() || 'Receta sin título';
+      const fecha = document.getElementById('recetaFecha').value || new Date().toISOString().split('T')[0];
+      const tipo = document.getElementById('recetaTipoPlato').value || 'No especificado';
+      const responsable = document.getElementById('recetaResponsable').value.trim() || 'No especificado';
+      const observaciones = document.getElementById('recetaObservaciones').value.trim() || '';
+      const baseCosteo = document.getElementById('recetaBaseCosteo').value === 'cocido' ? 'Peso final cocido' : 'Peso neto (crudo limpio)';
+      const porcionGramos = document.getElementById('recetaPorcionGramos').value || 'No definido';
+      const numPorciones = document.getElementById('recetaNumPorciones').value || 0;
+      const pesoTotal = document.getElementById('recetaPesoTotal').value || '0 g';
+
+      // Obtener datos de ingredientes desde la tabla
+      const rows = document.querySelectorAll('#recetaIngredientesBody tr');
+      let ingredientesData = [];
+      rows.forEach(row => {
+        const producto = row.querySelector('.ing-prod-select option:checked')?.text || 'Sin producto';
+        const peso = row.querySelector('.ing-peso')?.value || 0;
+        const factorM = row.querySelector('.ing-factor-m')?.textContent || '1.00';
+        const pesoBruto = row.querySelector('.ing-peso-bruto')?.textContent || '0';
+        const precioBruto = row.querySelector('.ing-precio-bruto')?.textContent || '$0.00';
+        const precioNeto = row.querySelector('.ing-precio-neto')?.textContent || '$0.00';
+        const usarCoccion = row.querySelector('.ing-usar-coccion')?.checked ? 'Sí' : 'No';
+        const costo = row.querySelector('.ing-costo')?.textContent || '$0.00';
+        const porcentaje = row.querySelector('.ing-porcentaje')?.textContent || '0%';
+        ingredientesData.push({ producto, peso, factorM, pesoBruto, precioBruto, precioNeto, usarCoccion, costo, porcentaje });
+      });
+
+      // Construir HTML del reporte
+      const reporteHTML = `
+        <div id="reporte-pdf" style="padding:2rem;font-family:'Segoe UI',Roboto,sans-serif;color:#000;max-width:1000px;margin:0 auto;">
+          <h2 style="color:#0055cc;border-bottom:2px solid #0055cc;padding-bottom:0.5rem;">🧑‍🍳 Ficha Técnica de Receta</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+            <div><strong>Título:</strong> ${titulo}</div>
+            <div><strong>Fecha:</strong> ${fecha}</div>
+            <div><strong>Tipo de plato:</strong> ${tipo}</div>
+            <div><strong>Responsable:</strong> ${responsable}</div>
+            <div><strong>Base de costeo:</strong> ${baseCosteo}</div>
+            <div><strong>Tamaño de porción:</strong> ${porcionGramos} g</div>
+            <div><strong>Número de porciones:</strong> ${numPorciones}</div>
+            <div><strong>Peso total (según base):</strong> ${pesoTotal}</div>
+            ${observaciones ? `<div style="grid-column:1 / -1;"><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
+          </div>
+
+          <h3 style="margin-top:1.5rem;color:#0055cc;">🧾 Ingredientes</h3>
+          <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;">
+            <thead>
+              <tr>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Producto</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso (g)</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Factor M</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso bruto (g)</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio compra $/kg</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio neto $/kg</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Usar cocción</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Costo $</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ingredientesData.map(item => `
+                <tr>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.producto}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.peso}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.factorM}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.pesoBruto}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.precioBruto}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.precioNeto}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.usarCoccion}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.costo}</td>
+                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.porcentaje}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+
+          <h3 style="margin-top:1.5rem;color:#0055cc;">📊 Resumen de costos</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:0.5rem;">
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo ingredientes</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resCostoTotalReceta').textContent}</div>
+            </div>
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Margen (5%)</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resMargenReceta').textContent}</div>
+            </div>
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo final</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resCostoFinalReceta').textContent}</div>
+            </div>
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo por porción</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resCostoPorcionReceta').textContent}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:2rem;font-size:0.8rem;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:1rem;">
+            Reporte generado por atenai-costeos v4.3 – ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}
+          </div>
+        </div>
+      `;
+
+      // Mostrar el reporte en el contenedor oculto
+      const container = document.getElementById('reporte-container');
+      container.innerHTML = reporteHTML;
+      container.style.display = 'block';
+
+      // Generar PDF
+      const element = document.getElementById('reporte-pdf');
+      const opt = {
+        margin:        [0.5, 0.5, 0.5, 0.5],
+        filename:     `${titulo.replace(/\s+/g, '_')}_ficha_tecnica.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, letterRendering: true },
+        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      // Deshabilitar el botón para evitar múltiples clics
+      const btn = this;
+      btn.disabled = true;
+      btn.textContent = '⏳ Generando...';
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        container.style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = '📄 Exportar PDF';
+        logMsg('logRecetas', '✅ PDF exportado correctamente.', 'exito');
+      }).catch(err => {
+        console.error('Error al generar PDF:', err);
+        container.style.display = 'none';
+        btn.disabled = false;
+        btn.textContent = '📄 Exportar PDF';
+        logMsg('logRecetas', '❌ Error al generar PDF.', 'error');
+      });
     });
 
     // ================================================================
