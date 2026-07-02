@@ -3,132 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>atenai-costeos v4.3</title>
+  <title>atenai-costeos v4.4</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-  <!-- Librería para exportar PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
-    }
-    body {
-      background: #ffffff;
-      color: #000000;
-      display: flex;
-      justify-content: center;
-      padding: 2rem 1rem;
-      margin: 0;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 1500px;
-      width: 100%;
-      background: #ffffff;
-      border-radius: 32px;
-      padding: 2rem;
-      border: 1px solid #eaeaea;
-    }
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
-      border-bottom: 2px solid #eaeaea;
-      padding-bottom: 0.8rem;
-    }
-    h1 {
-      color: #0055cc;
-      margin: 0;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-      font-size: 2rem;
-    }
-    .credits {
-      color: #666;
-      font-size: 0.85rem;
-      text-align: right;
-    }
+    * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
+    body { background: #ffffff; color: #000000; display: flex; justify-content: center; padding: 2rem 1rem; margin: 0; min-height: 100vh; }
+    .container { max-width: 1500px; width: 100%; background: #ffffff; border-radius: 32px; padding: 2rem; border: 1px solid #eaeaea; }
+    .header { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; margin-bottom: 1.5rem; border-bottom: 2px solid #eaeaea; padding-bottom: 0.8rem; }
+    h1 { color: #0055cc; margin: 0; font-weight: 600; letter-spacing: -0.5px; font-size: 2rem; }
+    .credits { color: #666; font-size: 0.85rem; text-align: right; }
     .credits span { display: block; }
-    .tabs {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-      border-bottom: 2px solid #eaeaea;
-      padding-bottom: 0.5rem;
-    }
-    .tab-btn {
-      background: #f5f5f5;
-      border: none;
-      border-radius: 40px;
-      padding: 10px 22px;
-      font-weight: 600;
-      color: #333;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.95rem;
-    }
+    .tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2rem; border-bottom: 2px solid #eaeaea; padding-bottom: 0.5rem; }
+    .tab-btn { background: #f5f5f5; border: none; border-radius: 40px; padding: 10px 22px; font-weight: 600; color: #333; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
     .tab-btn:hover { background: #e0e0e0; }
     .tab-btn.activo { background: #0055cc; color: #fff; }
     .tab-panel { display: none; animation: fade 0.25s ease; }
     .tab-panel.activo { display: block; }
     @keyframes fade { from { opacity: 0.3; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-
-    .seccion {
-      background: #fafafa;
-      padding: 1.8rem;
-      border-radius: 20px;
-      margin-bottom: 2rem;
-      border: 1px solid #eaeaea;
-    }
+    .seccion { background: #fafafa; padding: 1.8rem; border-radius: 20px; margin-bottom: 2rem; border: 1px solid #eaeaea; }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
     .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; }
-    label {
-      font-weight: 600;
-      font-size: 0.85rem;
-      text-transform: uppercase;
-      color: #444;
-      display: block;
-      margin-bottom: 4px;
-    }
-    input, select, textarea {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      font-size: 1rem;
-      background: #fff;
-      color: #000;
-      transition: 0.15s;
-    }
-    input:focus, select:focus, textarea:focus {
-      border-color: #0055cc;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(0,85,204,0.1);
-    }
+    label { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #444; display: block; margin-bottom: 4px; }
+    input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 12px; font-size: 1rem; background: #fff; color: #000; transition: 0.15s; }
+    input:focus, select:focus, textarea:focus { border-color: #0055cc; outline: none; box-shadow: 0 0 0 3px rgba(0,85,204,0.1); }
     input[type="number"] { text-align: right; }
-    input[readonly] {
-      background: #f5f5f5;
-      color: #0055cc;
-      font-weight: bold;
-      cursor: not-allowed;
-    }
+    input[readonly] { background: #f5f5f5; color: #0055cc; font-weight: bold; cursor: not-allowed; }
     textarea { resize: vertical; min-height: 50px; }
-    button {
-      padding: 10px 22px;
-      border: none;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      background: #0055cc;
-      color: white;
-      transition: 0.2s;
-      font-size: 1rem;
-    }
+    button { padding: 10px 22px; border: none; border-radius: 40px; font-weight: 600; cursor: pointer; background: #0055cc; color: white; transition: 0.2s; font-size: 1rem; }
     button:hover { background: #0044aa; transform: scale(1.02); }
     .btn-sec { background: #eaeaea; color: #333; }
     .btn-sec:hover { background: #d5d5d5; }
@@ -137,205 +41,48 @@
     .btn-edit { background: #0055cc; color: white; border: none; border-radius: 30px; padding: 4px 14px; font-size: 0.9rem; cursor: pointer; margin-right: 0.5rem; }
     .btn-edit:hover { background: #0044aa; }
     .flex { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
-    .factor-box {
-      background: #f0f7ff;
-      padding: 0.8rem 1.2rem;
-      border-radius: 14px;
-      margin-top: 0.8rem;
-      border: 1px solid #d0e0ff;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-      align-items: center;
-    }
+    .factor-box { background: #f0f7ff; padding: 0.8rem 1.2rem; border-radius: 14px; margin-top: 0.8rem; border: 1px solid #d0e0ff; display: flex; flex-wrap: wrap; gap: 2rem; align-items: center; }
     .factor-box .label { font-weight: 600; color: #444; }
     .factor-box .value { color: #0055cc; font-weight: bold; font-size: 1.1rem; }
     .text-muted { color: #666; font-size: 0.9rem; }
-
     .tabla-scroll { overflow-x: auto; margin-top: 0.8rem; }
     .tabla-scroll table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-    .tabla-scroll th {
-      background: #eaeaea;
-      padding: 10px 8px;
-      text-align: center;
-      font-weight: 600;
-      color: #333;
-      white-space: nowrap;
-    }
+    .tabla-scroll th { background: #eaeaea; padding: 10px 8px; text-align: center; font-weight: 600; color: #333; white-space: nowrap; }
     .tabla-scroll td { padding: 6px 8px; vertical-align: middle; }
-    .tabla-scroll input, .tabla-scroll select {
-      padding: 4px 8px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      background: #fff;
-      border: 1px solid #ccc;
-    }
-
-    .resumen {
-      background: #f0f7ff;
-      padding: 1.2rem;
-      border-radius: 16px;
-      margin-top: 1.2rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 0.8rem;
-      border: 1px solid #d0e0ff;
-    }
-    .resumen-item {
-      background: #fff;
-      padding: 0.5rem 1rem;
-      border-radius: 12px;
-      text-align: center;
-      border-left: 4px solid #0055cc;
-    }
+    .tabla-scroll input, .tabla-scroll select { padding: 4px 8px; border-radius: 8px; font-size: 0.9rem; background: #fff; border: 1px solid #ccc; }
+    .resumen { background: #f0f7ff; padding: 1.2rem; border-radius: 16px; margin-top: 1.2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.8rem; border: 1px solid #d0e0ff; }
+    .resumen-item { background: #fff; padding: 0.5rem 1rem; border-radius: 12px; text-align: center; border-left: 4px solid #0055cc; }
     .resumen-item .label { font-size: 0.8rem; text-transform: uppercase; color: #666; }
     .resumen-item .value { font-size: 1.3rem; font-weight: 700; color: #0055cc; }
-
     .historial { max-height: 500px; overflow-y: auto; }
-    .card {
-      background: #fafafa;
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 0.8rem;
-      border-left: 6px solid #0055cc;
-      position: relative;
-    }
-    .card .borrar {
-      background: #cc0000;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      padding: 4px 14px;
-      cursor: pointer;
-      float: right;
-      font-size: 0.9rem;
-    }
+    .card { background: #fafafa; padding: 1rem; border-radius: 12px; margin-bottom: 0.8rem; border-left: 6px solid #0055cc; position: relative; }
+    .card .borrar { background: #cc0000; color: white; border: none; border-radius: 30px; padding: 4px 14px; cursor: pointer; float: right; font-size: 0.9rem; }
     .card .borrar:hover { background: #aa0000; }
-    .card .editar {
-      background: #0055cc;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      padding: 4px 14px;
-      cursor: pointer;
-      float: right;
-      margin-right: 0.5rem;
-      font-size: 0.9rem;
-    }
+    .card .editar { background: #0055cc; color: white; border: none; border-radius: 30px; padding: 4px 14px; cursor: pointer; float: right; margin-right: 0.5rem; font-size: 0.9rem; }
     .card .editar:hover { background: #0044aa; }
-    .badge {
-      background: #0055cc;
-      color: white;
-      padding: 2px 12px;
-      border-radius: 40px;
-      font-size: 0.8rem;
-      display: inline-block;
-      margin-left: 0.5rem;
-    }
-    .log {
-      background: #f5f5f5;
-      padding: 0.5rem 1rem;
-      border-radius: 12px;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-      border: 1px solid #eaeaea;
-      max-height: 120px;
-      overflow-y: auto;
-      color: #333;
-    }
+    .card .pdf-btn { background: #28a745; color: white; border: none; border-radius: 30px; padding: 4px 14px; cursor: pointer; float: right; margin-right: 0.5rem; font-size: 0.9rem; }
+    .card .pdf-btn:hover { background: #1e7e34; }
+    .badge { background: #0055cc; color: white; padding: 2px 12px; border-radius: 40px; font-size: 0.8rem; display: inline-block; margin-left: 0.5rem; }
+    .log { background: #f5f5f5; padding: 0.5rem 1rem; border-radius: 12px; margin-top: 1rem; font-size: 0.9rem; border: 1px solid #eaeaea; max-height: 120px; overflow-y: auto; color: #333; }
     .log .error { color: #cc0000; }
     .log .exito { color: #0055cc; }
     .log .info { color: #666; }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-contenido {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 28px;
-      max-width: 1000px;
-      width: 95%;
-      max-height: 90vh;
-      overflow-y: auto;
-      border: 1px solid #ccc;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-    }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-contenido { background: #fff; padding: 2rem; border-radius: 28px; max-width: 1100px; width: 95%; max-height: 90vh; overflow-y: auto; border: 1px solid #ccc; box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
     .modal-contenido h2 { color: #0055cc; margin-top: 0; }
     .modal-contenido .flex { margin-top: 1.5rem; }
+    .modal-contenido .tabla-scroll { max-height: 300px; overflow-y: auto; }
 
-    /* Estilos para el reporte PDF (se aplican al contenedor oculto) */
-    #reporte-container {
-      display: none;
-      background: white;
-      padding: 2rem;
-      font-family: 'Segoe UI', Roboto, sans-serif;
-      color: #000;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-    #reporte-container h2 {
-      color: #0055cc;
-      border-bottom: 2px solid #0055cc;
-      padding-bottom: 0.5rem;
-    }
-    #reporte-container table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 1rem 0;
-      font-size: 0.9rem;
-    }
-    #reporte-container th {
-      background: #eaeaea;
-      padding: 8px;
-      text-align: center;
-      font-weight: 600;
-    }
-    #reporte-container td {
-      padding: 6px 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    #reporte-container .resumen-pdf {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-    #reporte-container .resumen-pdf-item {
-      background: #f0f7ff;
-      padding: 0.8rem;
-      border-radius: 8px;
-      text-align: center;
-      border-left: 4px solid #0055cc;
-    }
-    #reporte-container .resumen-pdf-item .label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      color: #666;
-    }
-    #reporte-container .resumen-pdf-item .value {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #0055cc;
-    }
-    #reporte-container .footer-pdf {
-      margin-top: 2rem;
-      font-size: 0.8rem;
-      color: #666;
-      text-align: center;
-      border-top: 1px solid #ccc;
-      padding-top: 1rem;
-    }
+    #reporte-container { display: none; background: white; padding: 2rem; font-family: 'Segoe UI', Roboto, sans-serif; color: #000; max-width: 1000px; margin: 0 auto; }
+    #reporte-container h2 { color: #0055cc; border-bottom: 2px solid #0055cc; padding-bottom: 0.5rem; }
+    #reporte-container table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+    #reporte-container th { background: #eaeaea; padding: 8px; text-align: center; font-weight: 600; }
+    #reporte-container td { padding: 6px 8px; border: 1px solid #ccc; text-align: center; }
+    #reporte-container .resumen-pdf { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    #reporte-container .resumen-pdf-item { background: #f0f7ff; padding: 0.8rem; border-radius: 8px; text-align: center; border-left: 4px solid #0055cc; }
+    #reporte-container .resumen-pdf-item .label { font-size: 0.8rem; text-transform: uppercase; color: #666; }
+    #reporte-container .resumen-pdf-item .value { font-size: 1.2rem; font-weight: 700; color: #0055cc; }
+    #reporte-container .footer-pdf { margin-top: 2rem; font-size: 0.8rem; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 1rem; }
 
     @media (max-width: 700px) {
       .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
@@ -349,11 +96,11 @@
   <div class="container">
 
     <div class="header">
-      <h1>🧑‍🍳 atenai-costeos v4.3</h1>
+      <h1>🧑‍🍳 atenai-costeos v4.4</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
         <span>Basado en el artículo de Ingeniería de Menú</span>
-        <span>Última actualización: 02/07/2026 02:00 hs (Argentina)</span>
+        <span>Última actualización: 02/07/2026 03:00 hs (Argentina)</span>
       </div>
     </div>
 
@@ -417,12 +164,9 @@
           <div><label>Observaciones</label><textarea id="rendCrudoObservaciones" rows="2"></textarea></div>
         </div>
         <div class="factor-box">
-          <span class="label">Rendimiento %:</span>
-          <span class="value" id="rendCrudoPorcentaje">—</span>
-          <span class="label">Factor desperdicio (M):</span>
-          <span class="value" id="rendCrudoFactor">—</span>
-          <span class="label">Merma %:</span>
-          <span class="value" id="rendCrudoMerma">—</span>
+          <span class="label">Rendimiento %:</span> <span class="value" id="rendCrudoPorcentaje">—</span>
+          <span class="label">Factor desperdicio (M):</span> <span class="value" id="rendCrudoFactor">—</span>
+          <span class="label">Merma %:</span> <span class="value" id="rendCrudoMerma">—</span>
         </div>
         <div class="flex">
           <button id="guardarRendCrudo">Guardar</button>
@@ -448,12 +192,9 @@
           <div><label>Observaciones</label><textarea id="rendCoccionObservaciones" rows="2"></textarea></div>
         </div>
         <div class="factor-box">
-          <span class="label">Factor cocción:</span>
-          <span class="value" id="rendCoccionFactor">—</span>
-          <span class="label">Rendimiento cocción %:</span>
-          <span class="value" id="rendCoccionPorcentaje">—</span>
-          <span class="label">Merma cocción %:</span>
-          <span class="value" id="rendCoccionMermaPct">—</span>
+          <span class="label">Factor cocción:</span> <span class="value" id="rendCoccionFactor">—</span>
+          <span class="label">Rendimiento cocción %:</span> <span class="value" id="rendCoccionPorcentaje">—</span>
+          <span class="label">Merma cocción %:</span> <span class="value" id="rendCoccionMermaPct">—</span>
         </div>
         <div class="flex">
           <button id="guardarRendCoccion">Guardar</button>
@@ -557,7 +298,6 @@
           <button id="agregarIngrediente" class="btn-sec">➕ Agregar</button>
           <button id="guardarReceta">💾 Guardar</button>
           <button id="limpiarReceta" class="btn-sec">🧹 Limpiar</button>
-          <button id="exportarPDF" class="btn-sec">📄 Exportar PDF</button>
         </div>
 
         <div class="resumen">
@@ -583,7 +323,7 @@
       </div>
     </div>
 
-    <!-- ===== MODAL ===== -->
+    <!-- ===== MODAL DE EDICIÓN COMPLETA ===== -->
     <div id="modalEditar" class="modal">
       <div class="modal-contenido">
         <h2>✏️ Editar registro</h2>
@@ -596,7 +336,7 @@
       </div>
     </div>
 
-    <!-- ===== CONTENEDOR PARA REPORTE PDF (oculto) ===== -->
+    <!-- ===== CONTENEDOR PARA REPORTE PDF ===== -->
     <div id="reporte-container"></div>
 
   </div>
@@ -635,27 +375,6 @@
         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('activo'));
         document.getElementById(btn.dataset.tab).classList.add('activo');
       });
-    });
-
-    // ================================================================
-    // MODAL (placeholder)
-    // ================================================================
-    let registroEditando = null;
-    function abrirModal(coleccion, id, datos, tipo) {
-      registroEditando = { coleccion, id, datos, tipo };
-      const modal = document.getElementById('modalEditar');
-      const body = document.getElementById('modalBody');
-      const log = document.getElementById('modalLog');
-      log.innerHTML = '';
-      body.innerHTML = `<p style="color:#888;">Edición completa disponible en la versión 4.3.</p>`;
-      modal.style.display = 'flex';
-    }
-    document.getElementById('modalCancelar').addEventListener('click', () => {
-      document.getElementById('modalEditar').style.display = 'none';
-      registroEditando = null;
-    });
-    document.getElementById('modalGuardar').addEventListener('click', async () => {
-      alert('Edición no implementada en esta versión.');
     });
 
     // ================================================================
@@ -1128,24 +847,19 @@
     // ================================================================
     let ingredientesReceta = [];
 
-    // Función para calcular el precio neto según si se usa factor cocción
     function calcularPrecioNeto(item) {
       const prod = productosCache.find(p => p.id === item.producto_id);
       if (!prod) return { precioNeto: 0, factorM: 1, factorCoccion: 1 };
-
       const rendCrudo = rendCrudoCache.find(r => r.producto_id === item.producto_id);
       const factorM = rendCrudo ? rendCrudo.factor_desperdicio : 1;
-
       const usarCoccion = item.usar_coccion !== undefined ? item.usar_coccion : true;
       let factorCoccion = 1;
       if (usarCoccion) {
         const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
         factorCoccion = rendCoccion ? rendCoccion.factor_coccion : 1;
       }
-
       const precioBruto = prod.precio_actual || 0;
       const precioNeto = precioBruto * factorM * factorCoccion;
-
       return { precioNeto, factorM, factorCoccion };
     }
 
@@ -1157,35 +871,23 @@
         actualizarResumenReceta();
         return;
       }
-
       const baseCosteo = document.getElementById('recetaBaseCosteo').value;
-
-      let costoTotal = 0;
-      let pesoTotalBase = 0; // peso según la base de costeo elegida
-      let pesoTotalNeto = 0; // peso neto crudo limpio (siempre se calcula)
-
+      let costoTotal = 0, pesoTotalBase = 0;
       ingredientesReceta.forEach(item => {
         const prod = productosCache.find(p => p.id === item.producto_id);
         if (!prod) return;
-
         const { precioNeto, factorM, factorCoccion } = calcularPrecioNeto(item);
-        const pesoIngresado = item.peso_neto || 0; // siempre se almacena en gramos (neto o cocido según base)
-
-        // Convertir según base de costeo
+        const pesoIngresado = item.peso_neto || 0;
         let pesoNetoEquivalente = pesoIngresado;
         if (baseCosteo === 'cocido') {
           const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
           const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
           pesoNetoEquivalente = pesoIngresado * factorCoc;
         }
-
         const pesoBrutoNecesario = pesoNetoEquivalente * factorM;
         const costo = (pesoNetoEquivalente / 1000) * precioNeto;
-
-        pesoTotalNeto += pesoNetoEquivalente;
-        pesoTotalBase += pesoIngresado; // acumulamos el peso según la base elegida
+        pesoTotalBase += pesoIngresado;
         costoTotal += costo;
-
         item.costo = costo;
         item.peso_neto_equivalente = pesoNetoEquivalente;
         item.peso_bruto_calculado = pesoBrutoNecesario;
@@ -1195,14 +897,11 @@
         item.factor_coccion = factorCoccion;
         item.usar_coccion = item.usar_coccion !== undefined ? item.usar_coccion : true;
       });
-
-      // Porcentajes
       ingredientesReceta.forEach(item => {
         const pct = costoTotal > 0 ? (item.costo / costoTotal) * 100 : 0;
         item.porcentaje = pct;
       });
 
-      // Renderizar filas
       ingredientesReceta.forEach((item, idx) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -1219,9 +918,7 @@
           <td><span class="ing-peso-bruto">${(item.peso_bruto_calculado || 0).toFixed(2)}</span></td>
           <td><span class="ing-precio-bruto">$${(item.precio_bruto || 0).toFixed(2)}</span></td>
           <td><span class="ing-precio-neto">$${(item.precio_neto || 0).toFixed(2)}</span></td>
-          <td>
-            <input type="checkbox" class="ing-usar-coccion" data-idx="${idx}" ${item.usar_coccion ? 'checked' : ''}>
-          </td>
+          <td><input type="checkbox" class="ing-usar-coccion" data-idx="${idx}" ${item.usar_coccion ? 'checked' : ''}></td>
           <td><span class="ing-costo">$${(item.costo || 0).toFixed(2)}</span></td>
           <td><span class="ing-porcentaje">${(item.porcentaje || 0).toFixed(1)}%</span></td>
           <td><button class="btn-danger ing-remove" data-idx="${idx}">✕</button></td>
@@ -1229,7 +926,6 @@
         tbody.appendChild(tr);
       });
 
-      // Eventos
       tbody.querySelectorAll('.ing-prod-select').forEach(sel => {
         sel.addEventListener('change', function() {
           const idx = parseInt(this.dataset.idx);
@@ -1237,7 +933,6 @@
           renderIngredientesReceta();
         });
       });
-
       tbody.querySelectorAll('.ing-peso').forEach(inp => {
         inp.addEventListener('input', function() {
           clearTimeout(this._timeout);
@@ -1249,7 +944,6 @@
           }, 300);
         });
       });
-
       tbody.querySelectorAll('.ing-usar-coccion').forEach(chk => {
         chk.addEventListener('change', function() {
           const idx = parseInt(this.dataset.idx);
@@ -1257,7 +951,6 @@
           renderIngredientesReceta();
         });
       });
-
       tbody.querySelectorAll('.ing-remove').forEach(btn => {
         btn.addEventListener('click', function() {
           const idx = parseInt(this.dataset.idx);
@@ -1265,23 +958,17 @@
           renderIngredientesReceta();
         });
       });
-
       actualizarResumenReceta();
     }
 
     function actualizarResumenReceta() {
-      let costoTotal = 0;
-      let pesoTotalBase = 0;
-      const baseCosteo = document.getElementById('recetaBaseCosteo').value;
-
+      let costoTotal = 0, pesoTotalBase = 0;
       ingredientesReceta.forEach(item => {
         costoTotal += item.costo || 0;
         pesoTotalBase += item.peso_neto || 0;
       });
-
       const margen = costoTotal * 0.05;
       const costoFinal = costoTotal + margen;
-
       const porcionGramos = parseFloat(document.getElementById('recetaPorcionGramos').value) || 0;
       let numPorciones = 0;
       if (porcionGramos > 0 && pesoTotalBase > 0) {
@@ -1289,9 +976,7 @@
       }
       document.getElementById('recetaNumPorciones').value = numPorciones;
       document.getElementById('recetaPesoTotal').value = pesoTotalBase.toFixed(2) + ' g';
-
       const costoPorPorcion = numPorciones > 0 ? costoFinal / numPorciones : 0;
-
       document.getElementById('resCostoTotalReceta').textContent = '$' + costoTotal.toFixed(2);
       document.getElementById('resMargenReceta').textContent = '$' + margen.toFixed(2);
       document.getElementById('resCostoFinalReceta').textContent = '$' + costoFinal.toFixed(2);
@@ -1299,9 +984,7 @@
       document.getElementById('resNumPorcionesReceta').textContent = numPorciones;
     }
 
-    document.getElementById('recetaBaseCosteo').addEventListener('change', () => {
-      renderIngredientesReceta();
-    });
+    document.getElementById('recetaBaseCosteo').addEventListener('change', renderIngredientesReceta);
 
     document.getElementById('agregarIngrediente').addEventListener('click', () => {
       ingredientesReceta.push({ producto_id: '', peso_neto: 0, usar_coccion: true });
@@ -1331,7 +1014,6 @@
         logMsg(logId, '❌ Agregá al menos un ingrediente.', 'error');
         return;
       }
-
       const fecha = document.getElementById('recetaFecha').value;
       const tipo = document.getElementById('recetaTipoPlato').value;
       const responsable = document.getElementById('recetaResponsable').value.trim();
@@ -1339,29 +1021,23 @@
       const porcionGramos = parseFloat(document.getElementById('recetaPorcionGramos').value) || 0;
       const baseCosteo = document.getElementById('recetaBaseCosteo').value;
 
-      let costoTotal = 0;
-      let pesoTotalBase = 0;
+      let costoTotal = 0, pesoTotalBase = 0;
       const ingredientesGuardar = [];
-
       for (const item of ingredientesReceta) {
         const prod = productosCache.find(p => p.id === item.producto_id);
         if (!prod) continue;
-
         const { precioNeto, factorM, factorCoccion } = calcularPrecioNeto(item);
         const pesoIngresado = item.peso_neto || 0;
-
         let pesoNetoEquivalente = pesoIngresado;
         if (baseCosteo === 'cocido') {
           const rendCoccion = rendCoccionCache.find(r => r.producto_id === item.producto_id);
           const factorCoc = rendCoccion ? rendCoccion.factor_coccion : 1;
           pesoNetoEquivalente = pesoIngresado * factorCoc;
         }
-
         const pesoBrutoNecesario = pesoNetoEquivalente * factorM;
         const costo = (pesoNetoEquivalente / 1000) * precioNeto;
         pesoTotalBase += pesoIngresado;
         costoTotal += costo;
-
         ingredientesGuardar.push({
           producto_id: item.producto_id,
           peso_neto: pesoIngresado,
@@ -1375,7 +1051,6 @@
           costo
         });
       }
-
       const margen = costoTotal * 0.05;
       const costoFinal = costoTotal + margen;
       const numPorciones = porcionGramos > 0 ? Math.round(pesoTotalBase / porcionGramos) : 0;
@@ -1383,11 +1058,7 @@
 
       try {
         await db.collection('recetas').add({
-          titulo,
-          fecha,
-          tipo_plato: tipo,
-          responsable,
-          observaciones,
+          titulo, fecha, tipo_plato: tipo, responsable, observaciones,
           ingredientes: ingredientesGuardar,
           base_costeo: baseCosteo,
           peso_total_base_g: pesoTotalBase,
@@ -1418,153 +1089,372 @@
     });
 
     // ================================================================
-    // EXPORTAR A PDF
+    // MODAL DE EDICIÓN COMPLETA
     // ================================================================
-    document.getElementById('exportarPDF').addEventListener('click', function() {
-      const titulo = document.getElementById('recetaTitulo').value.trim() || 'Receta sin título';
-      const fecha = document.getElementById('recetaFecha').value || new Date().toISOString().split('T')[0];
-      const tipo = document.getElementById('recetaTipoPlato').value || 'No especificado';
-      const responsable = document.getElementById('recetaResponsable').value.trim() || 'No especificado';
-      const observaciones = document.getElementById('recetaObservaciones').value.trim() || '';
-      const baseCosteo = document.getElementById('recetaBaseCosteo').value === 'cocido' ? 'Peso final cocido' : 'Peso neto (crudo limpio)';
-      const porcionGramos = document.getElementById('recetaPorcionGramos').value || 'No definido';
-      const numPorciones = document.getElementById('recetaNumPorciones').value || 0;
-      const pesoTotal = document.getElementById('recetaPesoTotal').value || '0 g';
+    let editando = null;
 
-      // Obtener datos de ingredientes desde la tabla
-      const rows = document.querySelectorAll('#recetaIngredientesBody tr');
-      let ingredientesData = [];
-      rows.forEach(row => {
-        const producto = row.querySelector('.ing-prod-select option:checked')?.text || 'Sin producto';
-        const peso = row.querySelector('.ing-peso')?.value || 0;
-        const factorM = row.querySelector('.ing-factor-m')?.textContent || '1.00';
-        const pesoBruto = row.querySelector('.ing-peso-bruto')?.textContent || '0';
-        const precioBruto = row.querySelector('.ing-precio-bruto')?.textContent || '$0.00';
-        const precioNeto = row.querySelector('.ing-precio-neto')?.textContent || '$0.00';
-        const usarCoccion = row.querySelector('.ing-usar-coccion')?.checked ? 'Sí' : 'No';
-        const costo = row.querySelector('.ing-costo')?.textContent || '$0.00';
-        const porcentaje = row.querySelector('.ing-porcentaje')?.textContent || '0%';
-        ingredientesData.push({ producto, peso, factorM, pesoBruto, precioBruto, precioNeto, usarCoccion, costo, porcentaje });
-      });
+    function abrirModal(coleccion, id, datos, tipo) {
+      editando = { coleccion, id, datos, tipo };
+      const modal = document.getElementById('modalEditar');
+      const body = document.getElementById('modalBody');
+      const log = document.getElementById('modalLog');
+      log.innerHTML = '';
+      let html = '';
 
-      // Construir HTML del reporte
-      const reporteHTML = `
-        <div id="reporte-pdf" style="padding:2rem;font-family:'Segoe UI',Roboto,sans-serif;color:#000;max-width:1000px;margin:0 auto;">
-          <h2 style="color:#0055cc;border-bottom:2px solid #0055cc;padding-bottom:0.5rem;">🧑‍🍳 Ficha Técnica de Receta</h2>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
-            <div><strong>Título:</strong> ${titulo}</div>
-            <div><strong>Fecha:</strong> ${fecha}</div>
-            <div><strong>Tipo de plato:</strong> ${tipo}</div>
-            <div><strong>Responsable:</strong> ${responsable}</div>
-            <div><strong>Base de costeo:</strong> ${baseCosteo}</div>
-            <div><strong>Tamaño de porción:</strong> ${porcionGramos} g</div>
-            <div><strong>Número de porciones:</strong> ${numPorciones}</div>
-            <div><strong>Peso total (según base):</strong> ${pesoTotal}</div>
-            ${observaciones ? `<div style="grid-column:1 / -1;"><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
+      if (tipo === 'producto') {
+        html = `
+          <div class="grid-2">
+            <div><label>Nombre</label><input id="editProdNombre" value="${datos.nombre || ''}" /></div>
+            <div><label>Categoría</label>
+              <select id="editProdCategoria">
+                <option value="">Seleccionar</option>
+                <option value="carniceria" ${datos.categoria === 'carniceria' ? 'selected' : ''}>Carnicería</option>
+                <option value="pescaderia" ${datos.categoria === 'pescaderia' ? 'selected' : ''}>Pescadería</option>
+                <option value="verduleria" ${datos.categoria === 'verduleria' ? 'selected' : ''}>Verdulería</option>
+                <option value="almacen" ${datos.categoria === 'almacen' ? 'selected' : ''}>Almacén</option>
+                <option value="frescos y lacteos" ${datos.categoria === 'frescos y lacteos' ? 'selected' : ''}>Frescos y lácteos</option>
+                <option value="bebidas" ${datos.categoria === 'bebidas' ? 'selected' : ''}>Bebidas</option>
+                <option value="otro" ${datos.categoria === 'otro' ? 'selected' : ''}>Otro</option>
+              </select>
+            </div>
+            <div><label>Unidad base</label>
+              <select id="editProdUnidad">
+                <option value="kg" ${datos.unidad_base === 'kg' ? 'selected' : ''}>kg</option>
+                <option value="g" ${datos.unidad_base === 'g' ? 'selected' : ''}>g</option>
+                <option value="litro" ${datos.unidad_base === 'litro' ? 'selected' : ''}>litro</option>
+                <option value="unidad" ${datos.unidad_base === 'unidad' ? 'selected' : ''}>unidad</option>
+              </select>
+            </div>
           </div>
-
-          <h3 style="margin-top:1.5rem;color:#0055cc;">🧾 Ingredientes</h3>
-          <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;">
-            <thead>
-              <tr>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Producto</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso (g)</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Factor M</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso bruto (g)</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio compra $/kg</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio neto $/kg</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Usar cocción</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Costo $</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">%</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${ingredientesData.map(item => `
+        `;
+      } else if (tipo === 'rendCrudo') {
+        html = `
+          <div class="grid-2">
+            <div><label>Producto</label>
+              <select id="editRendCrudoProducto">
+                ${productosCache.map(p =>
+                  `<option value="${p.id}" ${p.id === datos.producto_id ? 'selected' : ''}>${p.nombre}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div><label>Fecha</label><input id="editRendCrudoFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Responsable</label><input id="editRendCrudoResponsable" value="${datos.responsable || ''}" /></div>
+            <div><label>Peso bruto (g)</label><input id="editRendCrudoBruto" type="number" step="any" value="${datos.peso_bruto || 0}" /></div>
+            <div><label>Peso limpio (g)</label><input id="editRendCrudoLimpio" type="number" step="any" value="${datos.peso_limpio || 0}" /></div>
+            <div><label>Observaciones</label><textarea id="editRendCrudoObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
+          </div>
+        `;
+      } else if (tipo === 'rendCoccion') {
+        html = `
+          <div class="grid-2">
+            <div><label>Producto</label>
+              <select id="editRendCoccionProducto">
+                ${productosCache.map(p =>
+                  `<option value="${p.id}" ${p.id === datos.producto_id ? 'selected' : ''}>${p.nombre}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div><label>Fecha</label><input id="editRendCoccionFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Responsable</label><input id="editRendCoccionResponsable" value="${datos.responsable || ''}" /></div>
+            <div><label>Peso inicial (g)</label><input id="editRendCoccionInicial" type="number" step="any" value="${datos.peso_inicial || 0}" /></div>
+            <div><label>Peso final (g)</label><input id="editRendCoccionFinal" type="number" step="any" value="${datos.peso_final || 0}" /></div>
+            <div><label>Observaciones</label><textarea id="editRendCoccionObservaciones" rows="2">${datos.observaciones || ''}</textarea></div>
+          </div>
+        `;
+      } else if (tipo === 'compra') {
+        html = `
+          <div class="grid-2">
+            <div><label>Fecha</label><input id="editCompraFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Proveedor</label><input id="editCompraProveedor" value="${datos.proveedor || ''}" /></div>
+            <div><label>Producto</label>
+              <select id="editCompraProducto">
+                ${productosCache.map(p =>
+                  `<option value="${p.id}" ${p.id === datos.producto_id ? 'selected' : ''}>${p.nombre}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div><label>Cantidad (kg)</label><input id="editCompraCantidad" type="number" step="any" value="${datos.cantidad_kg || 0}" /></div>
+            <div><label>Precio total ($)</label><input id="editCompraPrecioTotal" type="number" step="any" value="${datos.precio_total || 0}" /></div>
+          </div>
+        `;
+      } else if (tipo === 'receta') {
+        // Para recetas, mostramos todos los campos generales y la tabla de ingredientes editables
+        const ingredientesEdit = datos.ingredientes || [];
+        let tablaIngs = '';
+        if (ingredientesEdit.length > 0) {
+          tablaIngs = ingredientesEdit.map((ing, idx) => `
+            <tr>
+              <td>
+                <select class="edit-ing-prod" data-idx="${idx}">
+                  ${productosCache.map(p =>
+                    `<option value="${p.id}" ${p.id === ing.producto_id ? 'selected' : ''}>${p.nombre}</option>`
+                  ).join('')}
+                </select>
+              </td>
+              <td><input type="number" step="any" class="edit-ing-peso" data-idx="${idx}" value="${ing.peso_neto || 0}" style="width:80px;" /></td>
+              <td><input type="checkbox" class="edit-ing-coccion" data-idx="${idx}" ${ing.usar_coccion !== false ? 'checked' : ''}></td>
+              <td><button class="btn-danger edit-ing-remove" data-idx="${idx}">✕</button></td>
+            </tr>
+          `).join('');
+        } else {
+          tablaIngs = '<tr><td colspan="4" style="text-align:center;color:#666;">Sin ingredientes</td></tr>';
+        }
+        html = `
+          <div class="grid-2">
+            <div><label>Título</label><input id="editRecetaTitulo" value="${datos.titulo || ''}" /></div>
+            <div><label>Fecha</label><input id="editRecetaFecha" type="date" value="${datos.fecha || ''}" /></div>
+            <div><label>Tipo de plato</label>
+              <select id="editRecetaTipoPlato">
+                <option value="">Seleccionar</option>
+                ${['Entrada','Principal','Postre','Ensalada','Trago','Cóctel','Cafetería','Otro'].map(t =>
+                  `<option value="${t}" ${t === datos.tipo_plato ? 'selected' : ''}>${t}</option>`
+                ).join('')}
+              </select>
+            </div>
+            <div><label>Responsable</label><input id="editRecetaResponsable" value="${datos.responsable || ''}" /></div>
+          </div>
+          <div style="margin-top:1rem;">
+            <label>Observaciones</label>
+            <textarea id="editRecetaObservaciones" rows="2">${datos.observaciones || ''}</textarea>
+          </div>
+          <div class="grid-2" style="margin-top:1rem;">
+            <div>
+              <label>Base de costeo</label>
+              <select id="editRecetaBaseCosteo">
+                <option value="neto" ${datos.base_costeo === 'neto' ? 'selected' : ''}>Peso neto (crudo limpio)</option>
+                <option value="cocido" ${datos.base_costeo === 'cocido' ? 'selected' : ''}>Peso final cocido</option>
+              </select>
+            </div>
+            <div>
+              <label>Tamaño de porción (g)</label>
+              <input id="editRecetaPorcionGramos" type="number" step="any" value="${datos.tamanio_porcion_g || 0}" />
+            </div>
+          </div>
+          <h4 style="margin-top:1.5rem;">🧾 Ingredientes</h4>
+          <div class="tabla-scroll">
+            <table>
+              <thead>
                 <tr>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.producto}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.peso}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.factorM}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.pesoBruto}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.precioBruto}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.precioNeto}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.usarCoccion}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.costo}</td>
-                  <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.porcentaje}</td>
+                  <th>Producto</th>
+                  <th>Peso neto (g)</th>
+                  <th>Usar cocción</th>
+                  <th></th>
                 </tr>
-              `).join('')}
-            </tbody>
-          </table>
-
-          <h3 style="margin-top:1.5rem;color:#0055cc;">📊 Resumen de costos</h3>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:0.5rem;">
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo ingredientes</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resCostoTotalReceta').textContent}</div>
-            </div>
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Margen (5%)</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resMargenReceta').textContent}</div>
-            </div>
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo final</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resCostoFinalReceta').textContent}</div>
-            </div>
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo por porción</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">${document.getElementById('resCostoPorcionReceta').textContent}</div>
-            </div>
+              </thead>
+              <tbody id="editRecetaIngredientesBody">${tablaIngs}</tbody>
+            </table>
           </div>
+          <button id="editRecetaAgregarIng" class="btn-sec" style="margin-top:0.5rem;">➕ Agregar ingrediente</button>
+        `;
+        // Eventos para la tabla de ingredientes en edición (se añaden después de renderizar)
+        setTimeout(() => {
+          const tbody = document.getElementById('editRecetaIngredientesBody');
+          document.getElementById('editRecetaAgregarIng')?.addEventListener('click', () => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>
+                <select class="edit-ing-prod">
+                  ${productosCache.map(p =>
+                    `<option value="${p.id}">${p.nombre}</option>`
+                  ).join('')}
+                </select>
+              </td>
+              <td><input type="number" step="any" class="edit-ing-peso" value="0" style="width:80px;" /></td>
+              <td><input type="checkbox" class="edit-ing-coccion" checked></td>
+              <td><button class="btn-danger edit-ing-remove">✕</button></td>
+            `;
+            tbody.appendChild(row);
+            agregarEventosEditIngredientes();
+          });
+          agregarEventosEditIngredientes();
+        }, 100);
+      }
 
-          <div style="margin-top:2rem;font-size:0.8rem;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:1rem;">
-            Reporte generado por atenai-costeos v4.3 – ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}
-          </div>
-        </div>
-      `;
+      body.innerHTML = html;
+      modal.style.display = 'flex';
+    }
 
-      // Mostrar el reporte en el contenedor oculto
-      const container = document.getElementById('reporte-container');
-      container.innerHTML = reporteHTML;
-      container.style.display = 'block';
-
-      // Generar PDF
-      const element = document.getElementById('reporte-pdf');
-      const opt = {
-        margin:        [0.5, 0.5, 0.5, 0.5],
-        filename:     `${titulo.replace(/\s+/g, '_')}_ficha_tecnica.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2, letterRendering: true },
-        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-      };
-
-      // Deshabilitar el botón para evitar múltiples clics
-      const btn = this;
-      btn.disabled = true;
-      btn.textContent = '⏳ Generando...';
-
-      html2pdf().set(opt).from(element).save().then(() => {
-        container.style.display = 'none';
-        btn.disabled = false;
-        btn.textContent = '📄 Exportar PDF';
-        logMsg('logRecetas', '✅ PDF exportado correctamente.', 'exito');
-      }).catch(err => {
-        console.error('Error al generar PDF:', err);
-        container.style.display = 'none';
-        btn.disabled = false;
-        btn.textContent = '📄 Exportar PDF';
-        logMsg('logRecetas', '❌ Error al generar PDF.', 'error');
+    function agregarEventosEditIngredientes() {
+      document.querySelectorAll('#editRecetaIngredientesBody .edit-ing-remove').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const tbody = document.getElementById('editRecetaIngredientesBody');
+          if (tbody.children.length > 1) {
+            this.closest('tr').remove();
+          } else {
+            alert('Debe quedar al menos un ingrediente.');
+          }
+        });
       });
+    }
+
+    document.getElementById('modalCancelar').addEventListener('click', () => {
+      document.getElementById('modalEditar').style.display = 'none';
+      editando = null;
+    });
+
+    document.getElementById('modalGuardar').addEventListener('click', async () => {
+      if (!editando) return;
+      const { coleccion, id, tipo } = editando;
+      const logId = 'modalLog';
+      logMsg(logId, '🔄 Actualizando...');
+      try {
+        let datosActualizados = {};
+        if (tipo === 'producto') {
+          const nombre = document.getElementById('editProdNombre').value.trim();
+          const categoria = document.getElementById('editProdCategoria').value;
+          const unidad = document.getElementById('editProdUnidad').value;
+          if (!nombre) { logMsg(logId, '❌ Nombre requerido.', 'error'); return; }
+          datosActualizados = { nombre, categoria, unidad_base: unidad };
+        } else if (tipo === 'rendCrudo') {
+          const productoId = document.getElementById('editRendCrudoProducto').value;
+          const fecha = document.getElementById('editRendCrudoFecha').value;
+          const responsable = document.getElementById('editRendCrudoResponsable').value.trim();
+          const bruto = parseFloat(document.getElementById('editRendCrudoBruto').value) || 0;
+          const limpio = parseFloat(document.getElementById('editRendCrudoLimpio').value) || 0;
+          const observaciones = document.getElementById('editRendCrudoObservaciones').value.trim();
+          if (!productoId || bruto <= 0 || limpio <= 0) {
+            logMsg(logId, '❌ Producto, peso bruto y limpio obligatorios.', 'error');
+            return;
+          }
+          const rend = (limpio / bruto) * 100;
+          const factor = bruto / limpio;
+          datosActualizados = {
+            producto_id: productoId, fecha, responsable,
+            peso_bruto: bruto, peso_limpio: limpio,
+            rendimiento_porcentaje: rend, factor_desperdicio: factor,
+            observaciones
+          };
+        } else if (tipo === 'rendCoccion') {
+          const productoId = document.getElementById('editRendCoccionProducto').value;
+          const fecha = document.getElementById('editRendCoccionFecha').value;
+          const responsable = document.getElementById('editRendCoccionResponsable').value.trim();
+          const inicial = parseFloat(document.getElementById('editRendCoccionInicial').value) || 0;
+          const final = parseFloat(document.getElementById('editRendCoccionFinal').value) || 0;
+          const observaciones = document.getElementById('editRendCoccionObservaciones').value.trim();
+          if (!productoId || inicial <= 0 || final <= 0) {
+            logMsg(logId, '❌ Producto, peso inicial y final obligatorios.', 'error');
+            return;
+          }
+          const factor = inicial / final;
+          const rend = (final / inicial) * 100;
+          datosActualizados = {
+            producto_id: productoId, fecha, responsable,
+            peso_inicial: inicial, peso_final: final,
+            factor_coccion: factor, rendimiento_porcentaje: rend,
+            observaciones
+          };
+        } else if (tipo === 'compra') {
+          const fecha = document.getElementById('editCompraFecha').value;
+          const proveedor = document.getElementById('editCompraProveedor').value.trim();
+          const productoId = document.getElementById('editCompraProducto').value;
+          const cantidad = parseFloat(document.getElementById('editCompraCantidad').value) || 0;
+          const precioTotal = parseFloat(document.getElementById('editCompraPrecioTotal').value) || 0;
+          if (!fecha || !proveedor || !productoId || cantidad <= 0 || precioTotal <= 0) {
+            logMsg(logId, '❌ Todos los campos obligatorios.', 'error');
+            return;
+          }
+          const precioKg = precioTotal / cantidad;
+          datosActualizados = { fecha, proveedor, producto_id: productoId, cantidad_kg: cantidad, precio_total: precioTotal, precio_kg: precioKg };
+        } else if (tipo === 'receta') {
+          const titulo = document.getElementById('editRecetaTitulo').value.trim();
+          const fecha = document.getElementById('editRecetaFecha').value;
+          const tipoPlato = document.getElementById('editRecetaTipoPlato').value;
+          const responsable = document.getElementById('editRecetaResponsable').value.trim();
+          const observaciones = document.getElementById('editRecetaObservaciones').value.trim();
+          const baseCosteo = document.getElementById('editRecetaBaseCosteo').value;
+          const porcionGramos = parseFloat(document.getElementById('editRecetaPorcionGramos').value) || 0;
+          if (!titulo) { logMsg(logId, '❌ Título requerido.', 'error'); return; }
+
+          // Recolectar ingredientes de la tabla de edición
+          const rows = document.querySelectorAll('#editRecetaIngredientesBody tr');
+          const ingredientesEdit = [];
+          let pesoTotalBase = 0;
+          rows.forEach(row => {
+            const sel = row.querySelector('.edit-ing-prod');
+            const peso = row.querySelector('.edit-ing-peso');
+            const chk = row.querySelector('.edit-ing-coccion');
+            if (sel && peso) {
+              const prodId = sel.value;
+              const pesoVal = parseFloat(peso.value) || 0;
+              if (prodId && pesoVal > 0) {
+                ingredientesEdit.push({
+                  producto_id: prodId,
+                  peso_neto: pesoVal,
+                  usar_coccion: chk ? chk.checked : true
+                });
+                pesoTotalBase += pesoVal;
+              }
+            }
+          });
+          if (ingredientesEdit.length === 0) {
+            logMsg(logId, '❌ Agregá al menos un ingrediente con cantidad > 0.', 'error');
+            return;
+          }
+
+          // Recalcular costos con los nuevos ingredientes y factores actuales
+          let costoTotal = 0;
+          const ingredientesGuardar = [];
+          for (const item of ingredientesEdit) {
+            const prod = productosCache.find(p => p.id === item.producto_id);
+            if (!prod) continue;
+            const { precioNeto, factorM, factorCoccion } = calcularPrecioNeto(item);
+            const pesoNetoEquivalente = item.peso_neto;
+            const pesoBrutoNecesario = pesoNetoEquivalente * factorM;
+            const costo = (pesoNetoEquivalente / 1000) * precioNeto;
+            costoTotal += costo;
+            ingredientesGuardar.push({
+              producto_id: item.producto_id,
+              peso_neto: item.peso_neto,
+              peso_neto_equivalente: pesoNetoEquivalente,
+              factor_m: factorM,
+              factor_coccion: factorCoccion,
+              usar_coccion: item.usar_coccion,
+              peso_bruto_calculado: pesoBrutoNecesario,
+              precio_bruto: prod.precio_actual || 0,
+              precio_neto: precioNeto,
+              costo
+            });
+          }
+
+          const margen = costoTotal * 0.05;
+          const costoFinal = costoTotal + margen;
+          const numPorciones = porcionGramos > 0 ? Math.round(pesoTotalBase / porcionGramos) : 0;
+          const costoPorPorcion = numPorciones > 0 ? costoFinal / numPorciones : 0;
+
+          datosActualizados = {
+            titulo, fecha, tipo_plato: tipoPlato, responsable, observaciones,
+            base_costeo: baseCosteo,
+            tamanio_porcion_g: porcionGramos,
+            ingredientes: ingredientesGuardar,
+            peso_total_base_g: pesoTotalBase,
+            costo_ingredientes: costoTotal,
+            costo_final: costoFinal,
+            costo_por_porcion: costoPorPorcion,
+            numero_porciones: numPorciones,
+            margen_error: 5
+          };
+        }
+
+        await db.collection(coleccion).doc(id).update(datosActualizados);
+        logMsg(logId, '✅ Registro actualizado.', 'exito');
+        setTimeout(() => {
+          document.getElementById('modalEditar').style.display = 'none';
+          editando = null;
+          recargarTodo();
+        }, 1000);
+      } catch (e) {
+        logMsg(logId, '❌ Error: ' + e.message, 'error');
+        console.error(e);
+      }
     });
 
     // ================================================================
-    // HISTORIAL
+    // HISTORIAL (con botón PDF y edición completa)
     // ================================================================
-    let recetasCache = [];
-
     async function cargarHistorial() {
       const contenedor = document.getElementById('historial');
       try {
         const snap = await db.collection('recetas').orderBy('created_at', 'desc').limit(50).get();
-        recetasCache = [];
         if (snap.empty) {
           contenedor.innerHTML = '<p style="color:#666;">No hay recetas.</p>';
           return;
@@ -1572,7 +1462,6 @@
         let html = '';
         for (const doc of snap.docs) {
           const data = doc.data();
-          recetasCache.push({ id: doc.id, ...data });
           const totalIngs = data.ingredientes ? data.ingredientes.length : 0;
           html += `
             <div class="card">
@@ -1580,6 +1469,7 @@
               <span class="badge">${data.tipo_plato || '—'}</span>
               <button class="borrar" data-id="${doc.id}" data-coleccion="recetas">✕</button>
               <button class="editar" data-id="${doc.id}" data-coleccion="recetas" data-tipo="receta">✏️</button>
+              <button class="pdf-btn" data-id="${doc.id}">📄 PDF</button>
               <br>
               <span style="font-size:0.9rem;color:#666;">
                 Costo final: $${(data.costo_final || 0).toFixed(2)} |
@@ -1594,10 +1484,135 @@
         }
         contenedor.innerHTML = html;
         asignarEventosLista(contenedor);
+        // Eventos PDF en historial
+        document.querySelectorAll('.pdf-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const id = this.dataset.id;
+            const doc = await db.collection('recetas').doc(id).get();
+            if (doc.exists) {
+              const data = doc.data();
+              generarPDFdesdeData(data);
+            } else {
+              alert('La receta no existe.');
+            }
+          });
+        });
       } catch (e) {
         console.error('Error cargando historial:', e);
         contenedor.innerHTML = '<p style="color:#cc0000;">Error al cargar.</p>';
       }
+    }
+
+    function generarPDFdesdeData(data) {
+      const titulo = data.titulo || 'Receta sin título';
+      const fecha = data.fecha || '';
+      const tipo = data.tipo_plato || 'No especificado';
+      const responsable = data.responsable || 'No especificado';
+      const observaciones = data.observaciones || '';
+      const baseCosteo = data.base_costeo === 'cocido' ? 'Peso final cocido' : 'Peso neto (crudo limpio)';
+      const porcionGramos = data.tamanio_porcion_g || 0;
+      const numPorciones = data.numero_porciones || 0;
+      const pesoTotal = data.peso_total_base_g || 0;
+
+      const ingredientesData = data.ingredientes || [];
+      const reporteHTML = `
+        <div id="reporte-pdf" style="padding:2rem;font-family:'Segoe UI',Roboto,sans-serif;color:#000;max-width:1000px;margin:0 auto;">
+          <h2 style="color:#0055cc;border-bottom:2px solid #0055cc;padding-bottom:0.5rem;">🧑‍🍳 Ficha Técnica de Receta</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+            <div><strong>Título:</strong> ${titulo}</div>
+            <div><strong>Fecha:</strong> ${fecha}</div>
+            <div><strong>Tipo de plato:</strong> ${tipo}</div>
+            <div><strong>Responsable:</strong> ${responsable}</div>
+            <div><strong>Base de costeo:</strong> ${baseCosteo}</div>
+            <div><strong>Tamaño de porción:</strong> ${porcionGramos} g</div>
+            <div><strong>Número de porciones:</strong> ${numPorciones}</div>
+            <div><strong>Peso total (según base):</strong> ${pesoTotal.toFixed(2)} g</div>
+            ${observaciones ? `<div style="grid-column:1 / -1;"><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
+          </div>
+
+          <h3 style="margin-top:1.5rem;color:#0055cc;">🧾 Ingredientes</h3>
+          <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;">
+            <thead>
+              <tr>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Producto</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso neto (g)</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Factor M</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso bruto (g)</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio compra $/kg</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio neto $/kg</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Usar cocción</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Costo $</th>
+                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${ingredientesData.map(item => {
+                const prod = productosCache.find(p => p.id === item.producto_id);
+                const nombreProd = prod ? prod.nombre : 'Producto eliminado';
+                return `
+                  <tr>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${nombreProd}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.peso_neto || 0}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${(item.factor_m || 1).toFixed(2)}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${(item.peso_bruto_calculado || 0).toFixed(2)}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">$${(item.precio_bruto || 0).toFixed(2)}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">$${(item.precio_neto || 0).toFixed(2)}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.usar_coccion !== false ? 'Sí' : 'No'}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">$${(item.costo || 0).toFixed(2)}</td>
+                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.costo && data.costo_ingredientes > 0 ? ((item.costo / data.costo_ingredientes) * 100).toFixed(1) : '0.0'}%</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+
+          <h3 style="margin-top:1.5rem;color:#0055cc;">📊 Resumen de costos</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:0.5rem;">
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo ingredientes</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_ingredientes || 0).toFixed(2)}</div>
+            </div>
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Margen (5%)</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_ingredientes * 0.05 || 0).toFixed(2)}</div>
+            </div>
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo final</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_final || 0).toFixed(2)}</div>
+            </div>
+            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo por porción</div>
+              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_por_porcion || 0).toFixed(2)}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:2rem;font-size:0.8rem;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:1rem;">
+            Reporte generado por atenai-costeos v4.4 – ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}
+          </div>
+        </div>
+      `;
+
+      const container = document.getElementById('reporte-container');
+      container.innerHTML = reporteHTML;
+      container.style.display = 'block';
+
+      const element = document.getElementById('reporte-pdf');
+      const opt = {
+        margin: [0.5, 0.5, 0.5, 0.5],
+        filename: `${titulo.replace(/\s+/g, '_')}_ficha_tecnica.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, letterRendering: true },
+        jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        container.style.display = 'none';
+        logMsg('historial', '✅ PDF exportado correctamente.', 'exito');
+      }).catch(err => {
+        console.error('Error al generar PDF:', err);
+        container.style.display = 'none';
+        logMsg('historial', '❌ Error al generar PDF.', 'error');
+      });
     }
 
     document.getElementById('refrescarHistorial').addEventListener('click', cargarHistorial);
@@ -1612,8 +1627,7 @@
         let count = 0;
         for (const doc of snap.docs) {
           const data = doc.data();
-          let costoTotal = 0;
-          let pesoTotalBase = 0;
+          let costoTotal = 0, pesoTotalBase = 0;
           const ingredientesGuardar = [];
           if (data.ingredientes && data.ingredientes.length) {
             for (const item of data.ingredientes) {
