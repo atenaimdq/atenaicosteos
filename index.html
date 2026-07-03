@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>atenai-costeos v4.4</title>
+  <title>atenai-costeos v4.5</title>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -26,6 +26,7 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
     .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.2rem; }
     .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; }
+    .grid-5 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 0.8rem; }
     label { font-weight: 600; font-size: 0.85rem; text-transform: uppercase; color: #444; display: block; margin-bottom: 4px; }
     input, select, textarea { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 12px; font-size: 1rem; background: #fff; color: #000; transition: 0.15s; }
     input:focus, select:focus, textarea:focus { border-color: #0055cc; outline: none; box-shadow: 0 0 0 3px rgba(0,85,204,0.1); }
@@ -85,7 +86,7 @@
     #reporte-container .footer-pdf { margin-top: 2rem; font-size: 0.8rem; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 1rem; }
 
     @media (max-width: 700px) {
-      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
       .tabs .tab-btn { flex: 1 1 100%; text-align: center; }
       .header { flex-direction: column; align-items: flex-start; }
       .credits { text-align: left; margin-top: 0.3rem; }
@@ -96,11 +97,11 @@
   <div class="container">
 
     <div class="header">
-      <h1>🧑‍🍳 atenai-costeos v4.4</h1>
+      <h1>🧑‍🍳 atenai-costeos v4.5</h1>
       <div class="credits">
         <span>Desarrollado por Daniel Santini y DpSk</span>
         <span>Basado en el artículo de Ingeniería de Menú</span>
-        <span>Última actualización: 02/07/2026 03:00 hs (Argentina)</span>
+        <span>Última actualización: 03/07/2026 10:30 hs (Argentina)</span>
       </div>
     </div>
 
@@ -230,7 +231,7 @@
       </div>
     </div>
 
-    <!-- ===== RECETAS ===== -->
+    <!-- ===== RECETAS (con nuevos campos) ===== -->
     <div id="tab5" class="tab-panel">
       <div class="seccion">
         <h3>📝 Recetas</h3>
@@ -247,22 +248,29 @@
           </div>
           <div><label>Responsable</label><input id="recetaResponsable" placeholder="Nombre" /></div>
         </div>
-        <div style="margin-top:1rem;">
+        <div class="grid-5" style="margin-top:0.5rem;">
+          <div><label>Método cocción</label><input id="recetaMetodo" placeholder="Horno, plancha..." /></div>
+          <div><label>Temperatura (°C)</label><input id="recetaTemp" type="number" placeholder="180" /></div>
+          <div><label>Tiempo cocción (min)</label><input id="recetaTiempoCoccion" type="number" placeholder="45" /></div>
+          <div><label>Tiempo preparación (min)</label><input id="recetaTiempoPrep" type="number" placeholder="20" /></div>
+          <div><label>Tamaño porción (g)</label><input id="recetaPorcionGramos" type="number" step="any" placeholder="350" /></div>
+        </div>
+        <div style="margin-top:0.5rem;">
+          <label>Procedimiento / pasos</label>
+          <textarea id="recetaProcedimiento" rows="3" placeholder="Pasos de la receta..."></textarea>
+        </div>
+        <div style="margin-top:0.5rem;">
           <label>Observaciones</label>
           <textarea id="recetaObservaciones" rows="2"></textarea>
         </div>
 
-        <div class="grid-4" style="margin-top:1.5rem;">
+        <div class="grid-4" style="margin-top:1rem;">
           <div>
             <label>Base de costeo</label>
             <select id="recetaBaseCosteo">
               <option value="neto">Peso neto (crudo limpio)</option>
               <option value="cocido">Peso final cocido</option>
             </select>
-          </div>
-          <div>
-            <label>Tamaño de porción (g)</label>
-            <input id="recetaPorcionGramos" type="number" step="any" placeholder="ej. 150" />
           </div>
           <div>
             <label>Número de porciones (calculado)</label>
@@ -998,8 +1006,13 @@
       document.getElementById('recetaFecha').value = new Date().toISOString().split('T')[0];
       document.getElementById('recetaTipoPlato').value = '';
       document.getElementById('recetaResponsable').value = '';
-      document.getElementById('recetaObservaciones').value = '';
+      document.getElementById('recetaMetodo').value = '';
+      document.getElementById('recetaTemp').value = '';
+      document.getElementById('recetaTiempoCoccion').value = '';
+      document.getElementById('recetaTiempoPrep').value = '';
       document.getElementById('recetaPorcionGramos').value = '';
+      document.getElementById('recetaProcedimiento').value = '';
+      document.getElementById('recetaObservaciones').value = '';
       document.getElementById('recetaNumPorciones').value = '';
       document.getElementById('recetaPesoTotal').value = '';
       logMsg('logRecetas', '🧹 Receta limpiada.', 'info');
@@ -1017,8 +1030,13 @@
       const fecha = document.getElementById('recetaFecha').value;
       const tipo = document.getElementById('recetaTipoPlato').value;
       const responsable = document.getElementById('recetaResponsable').value.trim();
-      const observaciones = document.getElementById('recetaObservaciones').value.trim();
+      const metodo = document.getElementById('recetaMetodo').value.trim();
+      const temp = parseFloat(document.getElementById('recetaTemp').value) || 0;
+      const tiempoCoccion = parseInt(document.getElementById('recetaTiempoCoccion').value) || 0;
+      const tiempoPrep = parseInt(document.getElementById('recetaTiempoPrep').value) || 0;
       const porcionGramos = parseFloat(document.getElementById('recetaPorcionGramos').value) || 0;
+      const procedimiento = document.getElementById('recetaProcedimiento').value.trim();
+      const observaciones = document.getElementById('recetaObservaciones').value.trim();
       const baseCosteo = document.getElementById('recetaBaseCosteo').value;
 
       let costoTotal = 0, pesoTotalBase = 0;
@@ -1058,7 +1076,13 @@
 
       try {
         await db.collection('recetas').add({
-          titulo, fecha, tipo_plato: tipo, responsable, observaciones,
+          titulo, fecha, tipo_plato: tipo, responsable,
+          metodo_coccion: metodo,
+          temperatura_coccion: temp,
+          tiempo_coccion_min: tiempoCoccion,
+          tiempo_preparacion_min: tiempoPrep,
+          procedimiento,
+          observaciones,
           ingredientes: ingredientesGuardar,
           base_costeo: baseCosteo,
           peso_total_base_g: pesoTotalBase,
@@ -1077,8 +1101,13 @@
         document.getElementById('recetaFecha').value = new Date().toISOString().split('T')[0];
         document.getElementById('recetaTipoPlato').value = '';
         document.getElementById('recetaResponsable').value = '';
-        document.getElementById('recetaObservaciones').value = '';
+        document.getElementById('recetaMetodo').value = '';
+        document.getElementById('recetaTemp').value = '';
+        document.getElementById('recetaTiempoCoccion').value = '';
+        document.getElementById('recetaTiempoPrep').value = '';
         document.getElementById('recetaPorcionGramos').value = '';
+        document.getElementById('recetaProcedimiento').value = '';
+        document.getElementById('recetaObservaciones').value = '';
         document.getElementById('recetaNumPorciones').value = '';
         document.getElementById('recetaPesoTotal').value = '';
         recargarTodo();
@@ -1089,7 +1118,7 @@
     });
 
     // ================================================================
-    // MODAL DE EDICIÓN COMPLETA
+    // MODAL DE EDICIÓN COMPLETA (con nuevos campos)
     // ================================================================
     let editando = null;
 
@@ -1178,7 +1207,6 @@
           </div>
         `;
       } else if (tipo === 'receta') {
-        // Para recetas, mostramos todos los campos generales y la tabla de ingredientes editables
         const ingredientesEdit = datos.ingredientes || [];
         let tablaIngs = '';
         if (ingredientesEdit.length > 0) {
@@ -1213,7 +1241,17 @@
             </div>
             <div><label>Responsable</label><input id="editRecetaResponsable" value="${datos.responsable || ''}" /></div>
           </div>
-          <div style="margin-top:1rem;">
+          <div class="grid-4" style="margin-top:0.5rem;">
+            <div><label>Método cocción</label><input id="editRecetaMetodo" value="${datos.metodo_coccion || ''}" /></div>
+            <div><label>Temperatura (°C)</label><input id="editRecetaTemp" type="number" value="${datos.temperatura_coccion || 0}" /></div>
+            <div><label>Tiempo cocción (min)</label><input id="editRecetaTiempoCoccion" type="number" value="${datos.tiempo_coccion_min || 0}" /></div>
+            <div><label>Tiempo preparación (min)</label><input id="editRecetaTiempoPrep" type="number" value="${datos.tiempo_preparacion_min || 0}" /></div>
+          </div>
+          <div style="margin-top:0.5rem;">
+            <label>Procedimiento</label>
+            <textarea id="editRecetaProcedimiento" rows="3">${datos.procedimiento || ''}</textarea>
+          </div>
+          <div style="margin-top:0.5rem;">
             <label>Observaciones</label>
             <textarea id="editRecetaObservaciones" rows="2">${datos.observaciones || ''}</textarea>
           </div>
@@ -1246,7 +1284,6 @@
           </div>
           <button id="editRecetaAgregarIng" class="btn-sec" style="margin-top:0.5rem;">➕ Agregar ingrediente</button>
         `;
-        // Eventos para la tabla de ingredientes en edición (se añaden después de renderizar)
         setTimeout(() => {
           const tbody = document.getElementById('editRecetaIngredientesBody');
           document.getElementById('editRecetaAgregarIng')?.addEventListener('click', () => {
@@ -1360,12 +1397,16 @@
           const fecha = document.getElementById('editRecetaFecha').value;
           const tipoPlato = document.getElementById('editRecetaTipoPlato').value;
           const responsable = document.getElementById('editRecetaResponsable').value.trim();
+          const metodo = document.getElementById('editRecetaMetodo').value.trim();
+          const temp = parseFloat(document.getElementById('editRecetaTemp').value) || 0;
+          const tiempoCoccion = parseInt(document.getElementById('editRecetaTiempoCoccion').value) || 0;
+          const tiempoPrep = parseInt(document.getElementById('editRecetaTiempoPrep').value) || 0;
+          const procedimiento = document.getElementById('editRecetaProcedimiento').value.trim();
           const observaciones = document.getElementById('editRecetaObservaciones').value.trim();
           const baseCosteo = document.getElementById('editRecetaBaseCosteo').value;
           const porcionGramos = parseFloat(document.getElementById('editRecetaPorcionGramos').value) || 0;
           if (!titulo) { logMsg(logId, '❌ Título requerido.', 'error'); return; }
 
-          // Recolectar ingredientes de la tabla de edición
           const rows = document.querySelectorAll('#editRecetaIngredientesBody tr');
           const ingredientesEdit = [];
           let pesoTotalBase = 0;
@@ -1391,7 +1432,6 @@
             return;
           }
 
-          // Recalcular costos con los nuevos ingredientes y factores actuales
           let costoTotal = 0;
           const ingredientesGuardar = [];
           for (const item of ingredientesEdit) {
@@ -1422,7 +1462,13 @@
           const costoPorPorcion = numPorciones > 0 ? costoFinal / numPorciones : 0;
 
           datosActualizados = {
-            titulo, fecha, tipo_plato: tipoPlato, responsable, observaciones,
+            titulo, fecha, tipo_plato: tipoPlato, responsable,
+            metodo_coccion: metodo,
+            temperatura_coccion: temp,
+            tiempo_coccion_min: tiempoCoccion,
+            tiempo_preparacion_min: tiempoPrep,
+            procedimiento,
+            observaciones,
             base_costeo: baseCosteo,
             tamanio_porcion_g: porcionGramos,
             ingredientes: ingredientesGuardar,
@@ -1449,7 +1495,7 @@
     });
 
     // ================================================================
-    // HISTORIAL (con botón PDF y edición completa)
+    // HISTORIAL (con PDF mejorado que incluye nuevos campos)
     // ================================================================
     async function cargarHistorial() {
       const contenedor = document.getElementById('historial');
@@ -1478,20 +1524,19 @@
                 Porciones: ${data.numero_porciones || 0} |
                 Base: ${data.base_costeo === 'cocido' ? 'Cocido' : 'Neto'} |
                 ${data.responsable ? 'Resp: ' + data.responsable : ''}
+                ${data.metodo_coccion ? '| Método: ' + data.metodo_coccion : ''}
               </span>
             </div>
           `;
         }
         contenedor.innerHTML = html;
         asignarEventosLista(contenedor);
-        // Eventos PDF en historial
         document.querySelectorAll('.pdf-btn').forEach(btn => {
           btn.addEventListener('click', async function() {
             const id = this.dataset.id;
             const doc = await db.collection('recetas').doc(id).get();
             if (doc.exists) {
-              const data = doc.data();
-              generarPDFdesdeData(data);
+              generarPDFdesdeData(doc.data());
             } else {
               alert('La receta no existe.');
             }
@@ -1508,86 +1553,108 @@
       const fecha = data.fecha || '';
       const tipo = data.tipo_plato || 'No especificado';
       const responsable = data.responsable || 'No especificado';
+      const metodo = data.metodo_coccion || '';
+      const temp = data.temperatura_coccion || '';
+      const tiempoCoccion = data.tiempo_coccion_min || '';
+      const tiempoPrep = data.tiempo_preparacion_min || '';
       const observaciones = data.observaciones || '';
+      const procedimiento = data.procedimiento || '';
       const baseCosteo = data.base_costeo === 'cocido' ? 'Peso final cocido' : 'Peso neto (crudo limpio)';
       const porcionGramos = data.tamanio_porcion_g || 0;
       const numPorciones = data.numero_porciones || 0;
       const pesoTotal = data.peso_total_base_g || 0;
 
       const ingredientesData = data.ingredientes || [];
+      let totalCostoIngredientes = data.costo_ingredientes || 0;
+      let margen = totalCostoIngredientes * 0.05;
+      let costoFinal = data.costo_final || 0;
+      let costoPorPorcion = data.costo_por_porcion || 0;
+
       const reporteHTML = `
         <div id="reporte-pdf" style="padding:2rem;font-family:'Segoe UI',Roboto,sans-serif;color:#000;max-width:1000px;margin:0 auto;">
-          <h2 style="color:#0055cc;border-bottom:2px solid #0055cc;padding-bottom:0.5rem;">🧑‍🍳 Ficha Técnica de Receta</h2>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+          <h2 style="color:#0055cc;border-bottom:2px solid #0055cc;padding-bottom:0.5rem;">🧑‍🍳 FICHA TÉCNICA DE RECETA</h2>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-top:1.2rem;font-size:0.95rem;">
             <div><strong>Título:</strong> ${titulo}</div>
             <div><strong>Fecha:</strong> ${fecha}</div>
             <div><strong>Tipo de plato:</strong> ${tipo}</div>
             <div><strong>Responsable:</strong> ${responsable}</div>
+            ${metodo ? `<div><strong>Método cocción:</strong> ${metodo}</div>` : ''}
+            ${temp ? `<div><strong>Temperatura:</strong> ${temp}°C</div>` : ''}
+            ${tiempoCoccion ? `<div><strong>Tiempo cocción:</strong> ${tiempoCoccion} min</div>` : ''}
+            ${tiempoPrep ? `<div><strong>Tiempo preparación:</strong> ${tiempoPrep} min</div>` : ''}
+            <div><strong>Tamaño porción:</strong> ${porcionGramos} g</div>
+            <div><strong>Número porciones:</strong> ${numPorciones}</div>
             <div><strong>Base de costeo:</strong> ${baseCosteo}</div>
-            <div><strong>Tamaño de porción:</strong> ${porcionGramos} g</div>
-            <div><strong>Número de porciones:</strong> ${numPorciones}</div>
             <div><strong>Peso total (según base):</strong> ${pesoTotal.toFixed(2)} g</div>
-            ${observaciones ? `<div style="grid-column:1 / -1;"><strong>Observaciones:</strong> ${observaciones}</div>` : ''}
           </div>
 
-          <h3 style="margin-top:1.5rem;color:#0055cc;">🧾 Ingredientes</h3>
-          <table style="width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.9rem;">
+          <h3 style="margin-top:1.5rem;color:#0055cc;">🧾 INGREDIENTES</h3>
+          <table style="width:100%;border-collapse:collapse;margin:0.8rem 0;font-size:0.85rem;">
             <thead>
               <tr>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Producto</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso neto (g)</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Factor M</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Peso bruto (g)</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio compra $/kg</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Precio neto $/kg</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Usar cocción</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">Costo $</th>
-                <th style="background:#eaeaea;padding:8px;text-align:center;font-weight:600;">%</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Producto</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Peso neto (g)</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Factor M</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Peso bruto (g)</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Precio compra $/kg</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Precio neto $/kg</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">Costo $</th>
+                <th style="background:#eaeaea;padding:6px;text-align:center;font-weight:600;">%</th>
               </tr>
             </thead>
             <tbody>
               ${ingredientesData.map(item => {
                 const prod = productosCache.find(p => p.id === item.producto_id);
                 const nombreProd = prod ? prod.nombre : 'Producto eliminado';
+                const pct = totalCostoIngredientes > 0 ? ((item.costo || 0) / totalCostoIngredientes * 100) : 0;
                 return `
                   <tr>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${nombreProd}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.peso_neto || 0}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${(item.factor_m || 1).toFixed(2)}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${(item.peso_bruto_calculado || 0).toFixed(2)}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">$${(item.precio_bruto || 0).toFixed(2)}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">$${(item.precio_neto || 0).toFixed(2)}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.usar_coccion !== false ? 'Sí' : 'No'}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">$${(item.costo || 0).toFixed(2)}</td>
-                    <td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">${item.costo && data.costo_ingredientes > 0 ? ((item.costo / data.costo_ingredientes) * 100).toFixed(1) : '0.0'}%</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">${nombreProd}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">${(item.peso_neto || 0).toFixed(2)}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">${(item.factor_m || 1).toFixed(2)}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">${(item.peso_bruto_calculado || 0).toFixed(2)}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">$${(item.precio_bruto || 0).toFixed(2)}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">$${(item.precio_neto || 0).toFixed(2)}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">$${(item.costo || 0).toFixed(2)}</td>
+                    <td style="padding:4px 6px;border:1px solid #ccc;text-align:center;">${pct.toFixed(1)}%</td>
                   </tr>
                 `;
               }).join('')}
             </tbody>
           </table>
 
-          <h3 style="margin-top:1.5rem;color:#0055cc;">📊 Resumen de costos</h3>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-top:0.5rem;">
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo ingredientes</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_ingredientes || 0).toFixed(2)}</div>
+          <h3 style="margin-top:1.5rem;color:#0055cc;">📊 COSTOS</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.8rem;margin-top:0.5rem;">
+            <div style="background:#f0f7ff;padding:0.6rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.75rem;text-transform:uppercase;color:#666;">Costo ingredientes</div>
+              <div style="font-size:1.1rem;font-weight:700;color:#0055cc;">$${totalCostoIngredientes.toFixed(2)}</div>
             </div>
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Margen (5%)</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_ingredientes * 0.05 || 0).toFixed(2)}</div>
+            <div style="background:#f0f7ff;padding:0.6rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.75rem;text-transform:uppercase;color:#666;">Margen (5%)</div>
+              <div style="font-size:1.1rem;font-weight:700;color:#0055cc;">$${margen.toFixed(2)}</div>
             </div>
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo final</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_final || 0).toFixed(2)}</div>
+            <div style="background:#f0f7ff;padding:0.6rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.75rem;text-transform:uppercase;color:#666;">Costo final</div>
+              <div style="font-size:1.1rem;font-weight:700;color:#0055cc;">$${costoFinal.toFixed(2)}</div>
             </div>
-            <div style="background:#f0f7ff;padding:0.8rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
-              <div style="font-size:0.8rem;text-transform:uppercase;color:#666;">Costo por porción</div>
-              <div style="font-size:1.2rem;font-weight:700;color:#0055cc;">$${(data.costo_por_porcion || 0).toFixed(2)}</div>
+            <div style="background:#f0f7ff;padding:0.6rem;border-radius:8px;text-align:center;border-left:4px solid #0055cc;">
+              <div style="font-size:0.75rem;text-transform:uppercase;color:#666;">Costo por porción</div>
+              <div style="font-size:1.1rem;font-weight:700;color:#0055cc;">$${costoPorPorcion.toFixed(2)}</div>
             </div>
           </div>
 
+          ${procedimiento ? `
+          <h3 style="margin-top:1.5rem;color:#0055cc;">📋 PROCEDIMIENTO</h3>
+          <div style="background:#fafafa;padding:0.8rem 1rem;border-radius:8px;border:1px solid #eaeaea;margin-top:0.3rem;white-space:pre-wrap;">${procedimiento}</div>
+          ` : ''}
+
+          ${observaciones ? `
+          <h3 style="margin-top:1.5rem;color:#0055cc;">📌 OBSERVACIONES</h3>
+          <div style="background:#fafafa;padding:0.8rem 1rem;border-radius:8px;border:1px solid #eaeaea;margin-top:0.3rem;white-space:pre-wrap;">${observaciones}</div>
+          ` : ''}
+
           <div style="margin-top:2rem;font-size:0.8rem;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:1rem;">
-            Reporte generado por atenai-costeos v4.4 – ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}
+            Reporte generado por atenai-costeos v4.5 – ${new Date().toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' })}
           </div>
         </div>
       `;
